@@ -13,7 +13,7 @@ const jgstMap = {
   '\uA999': 'j̣a', '\uA99A': 'ña', '\uA99B': 'ṭa', '\uA99C': 'ṭha', '\uA99D': 'ḍa',
   '\uA99E': 'ḍha', '\uA99F': 'ṇa', '\uA9A0': 'ta', '\uA9A1': 'tha', '\uA9A2': 'da',
   '\uA9A3': 'dha', '\uA9A4': 'na', '\uA9A5': 'pa', '\uA9A6': 'p̣a', '\uA9A7': 'ba',
-  '\uA9A8': 'ḅa', '\uA9A9': 'ma', '\uA9AA': 'ya', '\uA9AB': 'ra',
+  '\uA9A8': 'ḅa', '\uA9A9': 'ma', '\uA9AA': 'ya', '\uA9AB': 'ra', // Pasangan '\uA9AB\uA9C0': 'r/' DIHAPUS agar tidak memicu / palsu
   '\uA9AC': 'ṟa', '\uA9AD': 'la', '\uA9AE': 'wa', '\uA9AF': 'śa', '\uA9B0': 'ṣa',
   '\uA9B1': 'sa', '\uA9B2': 'ha', '\uA9B3': '', '\uA9C8': ',', '\uA9C9': '.',
   '\uA9D0': '0', '\uA9D1': '1', '\uA9D2': '2', '\uA9D3': '3', '\uA9D4': '4',
@@ -30,7 +30,7 @@ const rekanMap = {
 const sandhanganMap = {
   '\uA9B4': 'ā', '\uA9B5': 'o', '\uA9B6': 'i', '\uA9B7': 'ī', '\uA9B8': 'u',
   '\uA9B9': 'ū', '\uA9BA\uA9B4': 'o', '\uA9BA\uA9B5': 'õ', '\uA9BA': 'é', '\uA9BB\uA9B4': 'ꜹ',
-  '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě', '\uA9BD': 'ŕě',
+  '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě', '\uA9BD': 'ŕě', // Cakra Keret
   '\uA9BE': 'ỿa', '\uA9BF': 'ŕa'
 };
 
@@ -42,13 +42,13 @@ function transliterateToJGST(text) {
   while (i < text.length) {
     let char1 = text[i];
     
-    // Lewati zero-width joiner/non-joiner
+    // Lewati kontrol zero-width
     if (char1 === '\u200C' || char1 === '\u200D') {
       i++;
       continue;
     }
 
-    // Karakter Non-Aksara Jawa
+    // Karakter Non-Aksara Jawa (Spasi, tanda baca Latin, dsb)
     if (!/[\uA980-\uA9DF]/.test(char1)) {
       result += char1;
       i++;
@@ -73,26 +73,28 @@ function transliterateToJGST(text) {
     if (matchedLen > 0) {
       i += matchedLen;
       
+      // Proses sandhangan yang menempel di aksara dasar
       while (i < text.length) {
         let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
         let next1 = text[i];
 
-        // 1. Cek Sandhangan khusus Pangkon (\uA9C0)
+        // LOGIKA PANGKON VISUAL (\uA9C0)
+        // Hanya tambahkan '/' jika karakter benar-benar berupa \uA9C0 di teks Aksara Jawa
         if (next1 === '\uA9C0') {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += '/';
           i += 1;
-          break;
+          break; // Pangkon mematikan aksara, akhiri pencarian sandhangan
         }
 
-        // 2. Cek Sandhangan 2 Karakter
+        // Sandhangan 2 Karakter
         if (sandhanganMap[next2] !== undefined) {
           let sandh = sandhanganMap[next2];
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += sandh;
           i += 2;
         } 
-        // 3. Cek Sandhangan 1 Karakter (termasuk Cakra Keret \uA9BD = ŕě)
+        // Sandhangan 1 Karakter (termasuk Cakra Keret \uA9BD = 'ŕě')
         else if (sandhanganMap[next1] !== undefined) {
           let sandh = sandhanganMap[next1];
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
