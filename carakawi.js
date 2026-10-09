@@ -9,7 +9,7 @@ const charCount = document.getElementById('charCount');
 const copyBtn = document.getElementById('copyBtn');
 const clearBtn = document.getElementById('clearBtn');
 
-// Map Konsonan Mardi Kawi dengan Murda sesuai kaidah Sriwedari (N, K, T, S, P, G, B, J, NY)
+// Map Konsonan Mardi Kawi dengan Murda/Ra Agung sesuai kaidah Sriwedari (N, K, T, S, P, G, B, J, NY, R -> Ra Agung 'ꦬ')
 const CONS_MAP = {
     'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
     'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦘ', 'Ny': 'ꦘ', 'NG': 'ꦔ',
@@ -19,7 +19,7 @@ const CONS_MAP = {
     'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
     'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
     'p':'ꦥ', 'j':'ꦗ', 'y':'ꦪ', 'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ',
-    'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦫ', 'K':'ꦑ',
+    'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦬ', 'K':'ꦑ',
     'D':'ꦝ', 'T':'ꦡ', 'S':'ꦯ', 'W':'ꦮ', 'L':'ꦭ',
     'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ', 'P':'ꦦ',
     'f': 'ꦥ', 'v': 'ꦮ', 'z': 'ꦗ', 'dz': 'ꦢ'
@@ -27,7 +27,7 @@ const CONS_MAP = {
 
 function getWarga(char) {
     if (['ꦕ','ꦖ','ꦗ','ꦙ','ꦚ','ꦯ','ꦪ'].includes(char)) return 'talawya';
-    if (['ꦛ','ꦜ','ꦝ','ꦞ','ꦟ','ꦰ','ꦫ'].includes(char)) return 'murdhanya';
+    if (['ꦛ','ꦜ','ꦝ','ꦞ','ꦟ','ꦰ','ꦬ'].includes(char)) return 'murdhanya';
     if (['ꦠ','ꦡ','ꦢ','ꦣ','ꦤ','ꦱ','ꦭ'].includes(char)) return 'dantya';
     if (['ꦏ','ꦑ','ꦒ','ꦓ','ꦔ','ꦲ'].includes(char)) return 'kanthya';
     if (['ꦥ','ꦦ','ꦧ','ꦨ','ꦩ','ꦮ'].includes(char)) return 'osthya';
@@ -36,7 +36,6 @@ function getWarga(char) {
 
 function matchVowel(str, idx) {
     let sub2 = str.substr(idx, 2);
-    // Tambahan deteksi Ix dan ix untuk I Kawi (ꦅ)
     if (['aa', 'ii', 'uu', 'ai', 'au', 'AA', 'II', 'UU', 'AI', 'AU', "e'", 'ex', 'Ix', 'ix'].includes(sub2)) {
         return { val: sub2, len: 2 };
     }
@@ -52,33 +51,33 @@ function getSandhanganVowel(v) {
     if (v === 'u' || v === 'U') return 'ꦸ';
     if (v === 'é' || v === 'è' || v === 'É' || v === 'È' || v === "e'" || v === 'ex') return 'ꦺ';
     if (v === 'o' || v === 'O') return 'ꦺꦴ';
-    if (v === 'e' || v === 'E') return 'ꦼ'; // Sandhangan pepet (E = pepet)
+    if (v === 'e' || v === 'E') return 'ꦼ';
     if (v === 'aa' || v === 'AA') return 'ꦴ';
     if (v === 'ii' || v === 'II') return 'ꦷ';
     if (v === 'uu' || v === 'UU') return 'ꦹ';
     if (v === 'ai' || v === 'AI') return 'ꦻ';
     if (v === 'au' || v === 'AU') return 'ꦻꦴ';
-    if (v === 'Ix' || v === 'ix') return ''; // I Kawi tidak memiliki bentuk sandhangan mandiri
+    if (v === 'Ix' || v === 'ix') return '';
     return '';
 }
 
 function getMandarinVowel(v) {
     const isCapital = (v === v.toUpperCase() && v !== v.toLowerCase() && v !== "e'" && v !== "ex" && v !== 'Ix' && v !== 'ix');
     if (v === "e'" || v === "ex") return 'ꦲꦺ';
-    if (v === 'Ix' || v === 'ix') return 'ꦅ'; // I Kawi
+    if (v === 'Ix' || v === 'ix') return 'ꦅ';
 
     if (isCapital) {
         if (v === 'A') return 'ꦄ';
         if (v === 'AA') return 'ꦄꦴ';
-        if (v === 'I') return 'ꦆ'; // Swara I Sriwedari (ꦆ)
-        if (v === 'II') return 'ꦇ'; // Swara I Dirgha (ꦇ)
+        if (v === 'I') return 'ꦆ';
+        if (v === 'II') return 'ꦇ';
         if (v === 'U') return 'ꦈ';
-        if (v === 'UU') return 'ꦈꦴ'; // Swara U Dirgha
-        if (v === 'E') return 'ꦄꦼ'; // E Pepet Swara (ꦄꦼ)
-        if (v === 'É' || v === 'È') return 'ꦌ'; // E Taling Swara
+        if (v === 'UU') return 'ꦈꦴ';
+        if (v === 'E') return 'ꦄꦼ';
+        if (v === 'É' || v === 'È') return 'ꦌ';
         if (v === 'O') return 'ꦎ';
-        if (v === 'AI') return 'ꦍ'; // AI Dirgha
-        if (v === 'AU') return 'ꦎꦴ'; // AU Dirgha
+        if (v === 'AI') return 'ꦍ';
+        if (v === 'AU') return 'ꦎꦴ';
         return 'ꦄ';
     } else {
         if (v === 'a') return 'ꦲ';
@@ -97,6 +96,8 @@ function getMandarinVowel(v) {
 }
 
 function matchConsonant(str, idx) {
+    let sub3 = str.substr(idx, 3);
+    if (CONS_MAP[sub3]) return { char: CONS_MAP[sub3], len: 3, key: sub3.toLowerCase() };
     let sub2 = str.substr(idx, 2);
     if (CONS_MAP[sub2]) return { char: CONS_MAP[sub2], len: 2, key: sub2.toLowerCase() };
     let sub1 = str.substr(idx, 1);
@@ -110,7 +111,7 @@ function tokenize(rawStr) {
 
     for (let i = 0; i < rawStr.length; i++) {
         let c = rawStr[i];
-        if (/[a-zA-ZéèÉÈ0-9\-\+_\']/.test(c)) {
+        if (/[a-zA-ZéèÉÈ0-9\-\+_']/.test(c)) {
             currentWord += c;
         } else {
             if (currentWord) {
@@ -196,7 +197,7 @@ function transliterateKawi(rawText) {
             if (c >= '0' && c <= '9') {
                 let numStr = '';
                 while (i < word.length && word[i] >= '0' && word[i] <= '9') {
-                    const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                    const numMap = {'0':'꧐','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
                     numStr += numMap[word[i]];
                     i++;
                 }
@@ -204,7 +205,6 @@ function transliterateKawi(rawText) {
                 continue;
             }
 
-            // --- Eksekusi Makro Vokal Panjang (Dirgha) Kawi REE & LEE ---
             if (word.substr(i, 3).toLowerCase() === 'ree') {
                 let isStartOfWord = (i === 0);
                 let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
@@ -227,7 +227,6 @@ function transliterateKawi(rawText) {
                 }
             }
 
-            // --- Eksekusi Makro RE & LE ---
             if (word.substr(i, 2).toLowerCase() === 're') {
                 let isStartOfWord = (i === 0);
                 let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
