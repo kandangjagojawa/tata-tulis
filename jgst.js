@@ -1,5 +1,5 @@
 /**
- * jgst.js (Versi Diperkuat)
+ * jgst.js
  * Transliterasi Aksara Jawa Unicode ke JGST
  */
 
@@ -30,14 +30,15 @@ const rekanMap = {
 const sandhanganMap = {
   '\uA9B4': 'ā', '\uA9B5': 'o', '\uA9B6': 'i', '\uA9B7': 'ī', '\uA9B8': 'u',
   '\uA9B9': 'ū', '\uA9BA\uA9B4': 'o', '\uA9BA\uA9B5': 'õ', '\uA9BA': 'é', '\uA9BB\uA9B4': 'ꜹ',
-  '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě', '\uA9BD': 'ŕě',
+  '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě',
+  '\uA9BD': 'ŕě', // Cakra Keret khusus
   '\uA9BE': 'ỿa', '\uA9BF': 'ŕa'
 };
 
 function transliterateToJGST(text) {
   if (!text) return "";
   
-  // 1. Bersihkan karakter kontrol Zero-Width (\u200C dan \u200D) terlebih dahulu
+  // Clean zero-width characters
   text = text.replace(/[\u200C\u200D]/g, '');
 
   let result = "";
@@ -46,7 +47,6 @@ function transliterateToJGST(text) {
   while (i < text.length) {
     let char1 = text[i];
 
-    // Karakter Non-Aksara Jawa (spasi, simbol, angka latin)
     if (!/[\uA980-\uA9DF]/.test(char1)) {
       result += char1;
       i++;
@@ -75,28 +75,7 @@ function transliterateToJGST(text) {
         let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
         let next1 = text[i];
 
-        // 2. DETEKSI PANGKON (\uA9C0)
-        if (next1 === '\uA9C0') {
-          // Periksa karakter setelah pangkon
-          let charAfterPangkon = i + 1 < text.length ? text[i + 1] : "";
-          
-          // Pangkon HANYA dianggap "/" jika secara VISUAL memang mematikan kata
-          // (yaitu di akhir teks, atau diikuti spasi/tanda baca/non-aksara Jawa)
-          let isVisualPangkon = !charAfterPangkon || !/[\uA980-\uA9DF]/.test(charAfterPangkon);
-
-          if (isVisualPangkon) {
-            if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-            baseText += '/';
-          } else {
-            // Jika diikuti aksara Jawa lain (artinya pembentuk pasangan),
-            // potong vokal 'a' dari aksara dasar tetapi JANGAN tambahkan '/'
-            if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-          }
-          i += 1;
-          continue;
-        }
-
-        // 3. DETEKSI SANDHANGAN CAKRA KERET (\uA9BD)
+        // 1. Cakra Keret (\uA9BD)
         if (next1 === '\uA9BD') {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += 'ŕě';
@@ -104,18 +83,27 @@ function transliterateToJGST(text) {
           continue;
         }
 
-        // Sandhangan 2 Karakter
+        // 2. Pangkon (\uA9C0) -> Hanya berikan '/' jika secara visual di akhir / mati
+        if (next1 === '\uA9C0') {
+          let charNext = i + 1 < text.length ? text[i + 1] : "";
+          let isVisualPangkon = !charNext || !/[\uA980-\uA9DF]/.test(charNext);
+
+          if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
+          if (isVisualPangkon) {
+            baseText += '/';
+          }
+          i += 1;
+          continue;
+        }
+
+        // 3. Sandhangan Lainnya
         if (sandhanganMap[next2] !== undefined) {
-          let sandh = sandhanganMap[next2];
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-          baseText += sandh;
+          baseText += sandhanganMap[next2];
           i += 2;
-        } 
-        // Sandhangan 1 Karakter Lainnya
-        else if (sandhanganMap[next1] !== undefined) {
-          let sandh = sandhanganMap[next1];
+        } else if (sandhanganMap[next1] !== undefined) {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-          baseText += sandh;
+          baseText += sandhanganMap[next1];
           i += 1;
         } else {
           break;
