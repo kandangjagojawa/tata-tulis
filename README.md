@@ -79,4 +79,4 @@ Jika menemukan bug transliterasi, sertakan: input latin, output yang salah, dan 
 
 MIT License - bebas dipakai untuk pendidikan, pengembangan, dan pelestarian Aksara Jawa.
 
-> **Monggo uri-uri Aksara Jawa!**
+> **Mangga uri-uri Aksara Jawa!**
