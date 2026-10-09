@@ -29,7 +29,6 @@
 
         .input-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
         
-        /* Container Input dengan Tombol Clear (X) */
         .textarea-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         textarea { 
             width: 100%; 
@@ -64,7 +63,6 @@
         }
         .btn-clear:hover { background: #cbd5e1; color: #0f172a; }
 
-        /* Controls Section (Sliders) */
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -96,7 +94,6 @@
         .font-ngayogyann { font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif; }
         .font-ngayogyan { font-family: 'Ngayogyan', 'Noto Sans Javanese', sans-serif; }
 
-        /* Style Peringatan Aksara Rekan Khusus */
         .rekan-highlight { color: var(--warning-color); font-weight: bold; }
         .rekan-warning-badge {
             color: var(--warning-color);
@@ -117,7 +114,6 @@
     <div class="input-section">
         <label style="font-weight: bold; display: block; margin-bottom: 8px;">Huruf Latin</label>
         
-        <!-- Textarea Wrapper dengan Tombol X -->
         <div class="textarea-wrapper">
             <textarea id="inputLatin" 
                       placeholder="Ketik teks di sini..." 
@@ -128,7 +124,6 @@
             <button id="btnClear" class="btn-clear" title="Hapus teks">&times;</button>
         </div>
 
-        <!-- Slider Pengatur Ukuran & Spasi Vertikal -->
         <div class="controls-grid">
             <div class="control-group">
                 <label for="sliderFontSize">Ukuran Aksara Jawa: <span id="valFontSize">1.8rem</span></label>
@@ -229,14 +224,12 @@
     </div>
 </div>
 
-<!-- PEMANGGILAN MODUL EXTERNAL -->
 <script src="jgst.js"></script>
 <script src="ipa.js"></script>
 
 <script>
     const Modules = { kbj: null, sriwedari: null, simplified: null, tradisional: null, carakawi: null };
 
-    // Pemetaan Aksara Rekan Khusus (Hanya dikenal di Simplified & Tradisional)
     const REKAN_KHUSUS_MAP = {
         'q': 'ꦐ', 'hh': 'ꦲ꦳', 'xng': 'ꦔ꦳', 'ts': 'ꦱ꦳', 'shh': 'ꦰ꦳',
         'xsy': 'ꦯ꦳', 'dl': 'ꦭ꦳', 'tth': 'ꦡ꦳', 'zh': 'ꦣ꦳', 'x': 'ꦑ꦳'
@@ -281,12 +274,11 @@
             formattedInput = rawInput.replace(/e'/g, 'é').replace(/E'/g, 'É');
         }
 
-        // 1. Aksara Jawa Utuh (Lengkap Lintas Kata)
+        // 1. Aksara Jawa Utuh Tanpa Spasi (Scripto Continua)
         const rawAksaraUtuh = Modules[fnKey](formattedInput);
         let aksaraUtuhDisplay = rawAksaraUtuh;
         let warningText = "";
 
-        // Deteksi dan sorot Aksara Rekan Khusus untuk KBJ, Sriwedari, dan Cara Kawi
         if (checkRekanKhusus) {
             let detectedAksaraJawa = [];
             let keys = Object.keys(REKAN_KHUSUS_MAP).sort((a, b) => b.length - a.length);
@@ -321,10 +313,10 @@
 
         outAksara.innerHTML = aksaraUtuhDisplay + warningText;
 
-        // 2. Pemrosesan JGST & IPA Langsung Dari Aksara Jawa Utuh
+        // 2. JGST Ber-Spasi (Membaca Aksara Jawa Utuh + Teks Latin Pemisah)
         let jgstText = '-';
         if (typeof transliterateToJGST === 'function') {
-            jgstText = transliterateToJGST(rawAksaraUtuh);
+            jgstText = transliterateToJGST(rawAksaraUtuh, formattedInput);
         }
 
         if (isSastraLampah && /^h[aāiīuūěéèeoꜽꜷṛḷ]/i.test(jgstText)) {
@@ -343,7 +335,6 @@
     function processTransliteration() {
         const input = document.getElementById('inputLatin').value;
         
-        // Tampilkan/Sembunyikan tombol 'X' pembersih input
         const btnClear = document.getElementById('btnClear');
         btnClear.style.display = input.length > 0 ? 'flex' : 'none';
 
@@ -354,7 +345,6 @@
         processCardOutput('CaraKawi', 'carakawi', input, true, true);
     }
 
-    // Event Listener Tombol Hapus (X)
     document.getElementById('btnClear').addEventListener('click', () => {
         const inputLatin = document.getElementById('inputLatin');
         inputLatin.value = '';
@@ -362,7 +352,6 @@
         processTransliteration();
     });
 
-    // Event Listener Slider Ukuran Font & Spasi Vertikal
     document.getElementById('sliderFontSize').addEventListener('input', (e) => {
         const val = e.target.value;
         document.getElementById('valFontSize').textContent = `${val}rem`;
