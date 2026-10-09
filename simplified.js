@@ -536,20 +536,29 @@ function transliterasiSingleKata(rawLatin) {
         }
     });
 
-    // 3. Pengecualian Vokal Panjang tanpa tanda hubung (aa, ii, uu, ai, au)
+    // 3. Panglancar Vokal Panjang + Vokal Lain & Pengecualian Vokal Panjang Murni (aa, ii, uu, ai, au)
     let prevLatin = "";
     while (latinProcessed !== prevLatin) {
         prevLatin = latinProcessed;
+        
+        // A. Vokal berbasis A (aa)
+        latinProcessed = latinProcessed.replace(/(a{2,})([iueoéèêAIUEOÉÈÊ])/gi, '$1h$2');
         latinProcessed = latinProcessed.replace(/(?<!a|i|u|e|o)([aAEÊ])([aieoéèê])(?!a|i|u|e|o)/gi, function(m, p1, p2) {
             let combo = (p1 + p2).toLowerCase();
             if (['aa', 'ai', 'au'].includes(combo)) return p1 + p2;
             return p1 + 'h' + p2;
         });
+
+        // B. Vokal berbasis I (ii)
+        latinProcessed = latinProcessed.replace(/(i{2,}|é{2,}|è{2,})([aiueoéèêAIUEOÉÈÊ])/gi, '$1y$2');
         latinProcessed = latinProcessed.replace(/(?<!a|i|u|e|o)([iIÉÈ])([aiueoéèê])(?!a|i|u|e|o)/gi, function(m, p1, p2) {
             let combo = (p1 + p2).toLowerCase();
             if (['ii'].includes(combo)) return p1 + p2;
             return p1 + 'y' + p2;
         });
+
+        // C. Vokal berbasis U (uu)
+        latinProcessed = latinProcessed.replace(/(u{2,}|o{2,})([aiueoéèêAIUEOÉÈÊ])/gi, '$1w$2');
         latinProcessed = latinProcessed.replace(/(?<!a|i|u|e|o)([uUO])([aiueoéèê])(?!a|i|u|e|o)/gi, function(m, p1, p2) {
             let combo = (p1 + p2).toLowerCase();
             if (['uu'].includes(combo)) return p1 + p2;
