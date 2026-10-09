@@ -81,7 +81,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             'ñ': 'ɲ', 'ṅ': 'ŋ', 'ṇ': 'ɳ',
             'ṭ': 'ʈ', 'ḍ': 'ɖ', 'c': 'tʃ', 'j': 'dʒ',
             'y': 'j', // Ya bawaan -> IPA /j/
-            'w': 'w', // Wa bawaan -> IPA /w/
+            'w': 'w', // Wa bawaan (tebal & tipis) -> IPA /w/
             'ś': 'ʃ', 'ṣ': 'ʂ', 'ḥ': 'h',
             'q': 'q', 'x': 'x', 'f': 'f', 'v': 'v', 'z': 'z',
             'ṃ': 'm', 'ṙ': 'r', 'ṛ': 'rə', 'ḷ': 'lə',
@@ -97,10 +97,6 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
 
         // Hapus sisa karakter Unicode Aksara Jawa / simbol khusus non-IPA
         res = res.replace(/[\uA980-\uA9DF]/g, '');
-
-        // 5. Penentuan Wa Tebal [w̤] & Pengamanan Ya (j) di awal kata
-        res = res.replace(/^w/g, 'w̤');
-        res = res.replace(/^([bcdfghjklmnpqrstvwxyzḥŋṙṃñṅṇʈɖtʃdʒʃʂqxfvz])w/g, '$1w̤');
 
         // Degeminasi simbol IPA ganda berturut-turut
         res = res.replace(/(tʃ|dʒ|.)\1+/g, '$1');
