@@ -31,7 +31,7 @@ const sandhanganMap = {
   '\uA9B4': 'ā', '\uA9B5': 'o', '\uA9B6': 'i', '\uA9B7': 'ī', '\uA9B8': 'u',
   '\uA9B9': 'ū', '\uA9BA\uA9B4': 'o', '\uA9BA\uA9B5': 'õ', '\uA9BA': 'é', '\uA9BB\uA9B4': 'ꜹ',
   '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě', '\uA9BD': 'ŕě',
-  '\uA9BE': 'ỿa', '\uA9BF': 'ŕ', '\uA9C0': '/'
+  '\uA9BE': 'ỿa', '\uA9BF': 'ŕa', '\uA9C0': '/'
 };
 
 function transliterateToJGST(text) {
@@ -72,27 +72,33 @@ function transliterateToJGST(text) {
 
     if (matchedLen > 0) {
       i += matchedLen;
-      let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
-      let next1 = i < text.length ? text[i] : "";
+      
+      // Ambil sandhangan berurutan (bisa berupa cakra disusul vokal lain)
+      while (i < text.length) {
+        let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
+        let next1 = text[i];
 
-      if (sandhanganMap[next2] !== undefined) {
-        let sandh = sandhanganMap[next2];
-        if (sandh === '/') {
-          baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
+        if (sandhanganMap[next2] !== undefined) {
+          let sandh = sandhanganMap[next2];
+          if (sandh === '/') {
+            baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
+          } else {
+            if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
+            baseText += sandh;
+          }
+          i += 2;
+        } else if (sandhanganMap[next1] !== undefined) {
+          let sandh = sandhanganMap[next1];
+          if (sandh === '/') {
+            baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
+          } else {
+            if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
+            baseText += sandh;
+          }
+          i += 1;
         } else {
-          if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-          baseText += sandh;
+          break;
         }
-        i += 2;
-      } else if (sandhanganMap[next1] !== undefined) {
-        let sandh = sandhanganMap[next1];
-        if (sandh === '/') {
-          baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
-        } else {
-          if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
-          baseText += sandh;
-        }
-        i += 1;
       }
       result += baseText;
     } else {
