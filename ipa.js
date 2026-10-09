@@ -37,7 +37,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             if (isVowelEnd) {
                 if (lastChar === 'a') {
                     if (!/ana$/i.test(str)) {
-                        str = str.replace(/([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvz]*a)([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvz]+a)$/i, function(match, penult, ult) {
+                        str = str.replace(/([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]*a)([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]+a)$/i, function(match, penult, ult) {
                             return penult.replace(/a/g, 'ɔ') + ult;
                         });
                     }
@@ -60,12 +60,10 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
         }
 
         // 3. Aturan Khusus Vokal E-Miring (ɛ) Berimbuhan & Miring Ganda
-        // A. Kata dengan 2+ e-taling yang diakhiri konsonan/imbuhan (bukan vokal e terbuka)
         if (/[éèɛ].*?[éèɛ]/i.test(str) && !/[éèe]$/i.test(str)) {
             str = str.replace(/[éè]/g, 'ɛ');
         }
         
-        // B. Kata dasar ber-vokal e-miring yang mendapat panambang (-an, -en, -e, -i, -a, -ana, -ne, -ake, -aken, -ipun)
         if (/(an|en|e|i|a|ana|ne|ake|aken|ipun)$/i.test(str)) {
             str = str.replace(/[éè]/g, 'ɛ');
         }
@@ -84,6 +82,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             'ś': 'ʃ', 'ṣ': 'ʂ', 'ḥ': 'h',
             'q': 'q', 'x': 'x', 'f': 'f', 'v': 'v', 'z': 'z',
             'ṃ': 'm', 'ṙ': 'r', 'ṛ': 'rə', 'ḷ': 'lə',
+            'ŕ': 'r', // Konversi Cakra (ŕ) ke IPA [r]
             'ꜽ': 'aɪ', 'ꜷ': 'aʊ'
         };
 
@@ -92,6 +91,9 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             let char = str[i];
             res += (ipaMap[char] !== undefined) ? ipaMap[char] : char;
         }
+
+        // Hapus sisa karakter Unicode Aksara Jawa yang tidak terpetakan (jika ada)
+        res = res.replace(/[\uA980-\uA9DF]/g, '');
 
         // 5. Penentuan Ya Tebal [j̤] & Wa Tebal [w̤]
         res = res.replace(/^w/g, 'w̤').replace(/^j/g, 'j̤');
