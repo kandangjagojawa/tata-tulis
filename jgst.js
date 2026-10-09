@@ -81,7 +81,7 @@ function transliterateToJGST(text) {
         if (sandhanganMap[next2] !== undefined) {
           let sandh = sandhanganMap[next2];
           if (sandh === '/') {
-            baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
+            baseText = (baseText.endsWith('a') ? baseText.slice(0, -1) : baseText) + '/';
           } else {
             if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
             baseText += sandh;
@@ -90,7 +90,7 @@ function transliterateToJGST(text) {
         } else if (sandhanganMap[next1] !== undefined) {
           let sandh = sandhanganMap[next1];
           if (sandh === '/') {
-            baseText = baseText.endsWith('a') ? baseText.slice(0, -1) : baseText;
+            baseText = (baseText.endsWith('a') ? baseText.slice(0, -1) : baseText) + '/';
           } else {
             if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
             baseText += sandh;
