@@ -484,10 +484,42 @@ function transliterasiSingleKata(rawLatin) {
 
     let latinProcessed = rawLatin;
 
+    // Pengecualian kata serapan/asing berawalan di- agar tidak dianggap ater-ater
+    let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
+    let isPrefixException = false;
+    
+    if (wordMatchForExc) {
+        const excBases = "dian.*|diar.*|diare.*|dialog.*|diana.*|diaper.*|diastol.*|diat.*|diuretik.*|diet.*|dieng.*|diesel.*|dioda.*|diorama.*|dion.*|dioksida.*";
+        const excPattern = new RegExp(`^(${excBases})$`, 'i');
+        if (excPattern.test(wordMatchForExc[1])) {
+            isPrefixException = true;
+        }
+    }
+
+    if (!isPrefixException) {
+        latinProcessed = latinProcessed.replace(/^di-?([aiueoéèêAIUEOÉÈÊ])/i, function(match, vokal) {
+            let prefix = match.slice(0, 2);
+            if (vokal.toLowerCase() === 'i') {
+                return prefix + 'hx' + vokal;
+            } else {
+                return prefix + 'y' + vokal;
+            }
+        });
+
+        latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|ka|ke)-([aiueoéèê])/i, function(match, p1, p2) {
+            let p1Lower = p1.toLowerCase();
+            if (['dak', 'tak', 'kok'].includes(p1Lower)) {
+                return p1.slice(0, -1) + 'kxhx' + p2; 
+            } else {
+                return p1 + 'hx' + p2; 
+            }
+        });
+    }
+
     // 1. Konversi vokal dengan tanda hubung ke panglancar paugeran (h/y/w) + Vokal Kedua
     latinProcessed = latinProcessed.replace(/([aAEÊaeê])-([aiueoéèêAIUEOÉÈÊ])/g, '$1h$2');
     latinProcessed = latinProcessed.replace(/([iIÉÈiéè])-([aiueoéèêAIUEOÉÈÊ])/g, '$1y$2');
-    latinProcessed = latinProcessed.replace(/([uUOuo])-([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
+    latinProcessed = latinProcessed.replace(/([uoUOuo])-([aiueoéèêAIUEOÉÈÊ])/g, '$1w$2');
 
     // 2. Pemrosesan imbuhan/sufiks
     latinProcessed = latinProcessed.replace(/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/g, function(match, root, suffix) {
@@ -518,15 +550,6 @@ function transliterasiSingleKata(rawLatin) {
             }
         }
         return root + consonantToDouble + modSuffix;
-    });
-
-    latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)-([aiueoéèê])/i, function(match, p1, p2) {
-        let p1Lower = p1.toLowerCase();
-        if (['dak', 'tak', 'kok'].includes(p1Lower)) {
-            return p1.slice(0, -1) + 'kxhx' + p2; 
-        } else {
-            return p1 + 'hx' + p2; 
-        }
     });
 
     // 3. Panglancar Vokal Panjang + Vokal Lain & Pengecualian Vokal Panjang Murni (aa, ii, uu, ai, au)
