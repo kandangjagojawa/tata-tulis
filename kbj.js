@@ -478,14 +478,28 @@ function transliterasiSingleKata(rawLatin) {
         return root + consonantToDouble + modSuffix;
     });
 
-    latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)-([aiueoéèê])/i, function(match, p1, p2) {
-        let p1Lower = p1.toLowerCase();
-        if (['dak', 'tak', 'kok'].includes(p1Lower)) {
-            return p1.slice(0, -1) + 'kxhx' + p2; 
-        } else {
-            return p1 + 'hx' + p2; 
+    // Pengecualian kata serapan/asing berawalan di- agar tidak dianggap ater-ater
+    let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
+    let isPrefixException = false;
+    
+    if (wordMatchForExc) {
+        const excBases = "dian.*|diar.*|diare.*|dialog.*|diana.*|diaper.*|diastol.*|diat.*|diuretik.*|diet.*|dieng.*|diesel.*|dioda.*|diorama.*|dion.*|dioksida.*";
+        const excPattern = new RegExp(`^(${excBases})$`, 'i');
+        if (excPattern.test(wordMatchForExc[1])) {
+            isPrefixException = true;
         }
-    });
+    }
+
+    if (!isPrefixException) {
+        latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)-?([aiueoéèê])/i, function(match, p1, p2) {
+            let p1Lower = p1.toLowerCase();
+            if (['dak', 'tak', 'kok'].includes(p1Lower)) {
+                return p1.slice(0, -1) + 'kxhx' + p2; 
+            } else {
+                return p1 + 'hx' + p2; 
+            }
+        });
+    }
 
     let prevLatin = "";
     while (latinProcessed !== prevLatin) {
