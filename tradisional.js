@@ -1,7 +1,7 @@
 /**
  * TRADISIONAL.JS
- * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap
- * serta penyesuaian logika Layar (r mati di tengah kata).
+ * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap.
+ * Penyesuaian: Nga lelet (ꦊ) setelah konsonan mati berubah menjadi la + pepet (꧀ꦭꦼ).
  */
 
 const textInput = document.getElementById('textInput');
@@ -217,7 +217,7 @@ function transliterateKawi(rawText) {
             if (c >= '0' && c <= '9') {
                 let numStr = '';
                 while (i < word.length && word[i] >= '0' && word[i] <= '9') {
-                    const numMap = {'0':'꧐','1':'꧒','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                    const numMap = {'0':'꧐','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
                     numStr += numMap[word[i]];
                     i++;
                 }
@@ -351,7 +351,8 @@ function transliterateKawi(rawText) {
                         let afterLIdx = nextIdx + nextConsTemp2.len;
                         let lVowel = matchVowel(word, afterLIdx);
                         if (lVowel && (lVowel.val === 'e' || lVowel.val === 'E')) {
-                            result += consChar + '꧀ꦊ';
+                            // Nga lelet setelah konsonan mati berubah menjadi la + pepet (꧀ꦭꦼ)
+                            result += consChar + '꧀ꦭꦼ';
                             i = afterLIdx + lVowel.len;
                             lastConsKey = 'l';
                             lastConsIsMati = false;
@@ -444,10 +445,9 @@ function transliterateKawi(rawText) {
                     continue;
                 }
 
-                // --- PENANGANAN KHUSUS KONSONAN R ---
+                // --- PENANGANAN KHUSUS KONSONAN R MATI DI TENGAH KATA ---
                 if (cons.key === 'r') {
                     if (!isWordEnd) {
-                        // 1. Tambahkan Layar (ꦂ) pada suku kata yang dimatikan
                         result += 'ꦂ';
                         
                         let nextConsTemp = matchConsonant(word, peekIdx);
@@ -535,7 +535,8 @@ function transliterateKawi(rawText) {
                     let handledCrossWord = false;
 
                     if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                        result += consChar + '꧀ꦊ';
+                        // Nga lelet di awal kata berikutnya setelah konsonan mati
+                        result += consChar + '꧀ꦭꦼ';
                         nextWordToken.val = nextWordToken.val.substr(2);
                         handledCrossWord = true;
                         lastConsKey = 'l';
