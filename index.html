@@ -392,6 +392,10 @@
                 let ipaKata = '-';
                 if (typeof convertJGSTtoIPA === 'function') {
                     ipaKata = convertJGSTtoIPA(jgstForIPAAndPUJL, token);
+                    // Penyesuaian khusus fonetis IPA untuk kata "tanpa"
+                    if (ipaKata && ipaKata !== '-') {
+                        ipaKata = ipaKata.replace(/tɔnpɔ/g, 'tanpɔ');
+                    }
                 }
 
                 let pujlKata = '-';
