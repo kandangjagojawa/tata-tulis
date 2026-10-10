@@ -281,6 +281,18 @@
         processTransliteration();
     }
 
+    // Fungsi penetral taling tarung palsu JGST khusus modul Sriwedari untuk umpan ke IPA & PUJL
+    function netralkanSriwedariJGST(jgstStr, rawLatin) {
+        if (!jgstStr || !rawLatin) return jgstStr;
+        let rawLower = rawLatin.toLowerCase();
+        
+        // Netralkan vokal 'o' pada JGST kembali ke 'a' jika vokal Latin aslinya adalah 'a' (tanpa vokal 'o' asli)
+        if (/o/i.test(jgstStr) && /a/i.test(rawLower) && !/o/i.test(rawLower)) {
+            return jgstStr.replace(/o/g, 'a').replace(/O/g, 'A');
+        }
+        return jgstStr;
+    }
+
     // Fungsi pemproses JGST, IPA & PUJL dengan penanganan sandhi shift (ḷ, lě, ŕě)
     function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (!rawInput.trim() || !Modules[fnKey]) {
@@ -364,14 +376,20 @@
             } else if (token !== '') {
                 let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
                 
+                // Khusus Sriwedari: Netralkan JGST untuk umpan IPA & PUJL agar tidak ada taling tarung palsu
+                let jgstForIPAAndPUJL = jgstKata;
+                if (fnKey === 'sriwedari') {
+                    jgstForIPAAndPUJL = netralkanSriwedariJGST(jgstKata, token);
+                }
+
                 let ipaKata = '-';
                 if (typeof convertJGSTtoIPA === 'function') {
-                    ipaKata = convertJGSTtoIPA(jgstKata, token);
+                    ipaKata = convertJGSTtoIPA(jgstForIPAAndPUJL, token);
                 }
 
                 let pujlKata = '-';
                 if (typeof convertJGSTtoPUJL === 'function') {
-                    pujlKata = convertJGSTtoPUJL(jgstKata, token);
+                    pujlKata = convertJGSTtoPUJL(jgstForIPAAndPUJL, token);
                 }
 
                 jgstList.push(jgstKata);
