@@ -1,7 +1,7 @@
 /**
  * TRADISIONAL.JS
  * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap.
- * Penyesuaian: Nga lelet (ꦊ) setelah konsonan mati berubah menjadi la + pepet (꧀ꦭꦼ).
+ * Perbaikan: Konsonan r mati di akhir kata & tengah kata konsisten menggunakan Layar (ꦂ).
  */
 
 const textInput = document.getElementById('textInput');
@@ -445,9 +445,10 @@ function transliterateKawi(rawText) {
                     continue;
                 }
 
-                // --- PENANGANAN KHUSUS KONSONAN R MATI DI TENGAH KATA ---
+                // --- PENANGANAN KHUSUS KONSONAN R ---
                 if (cons.key === 'r') {
                     if (!isWordEnd) {
+                        // Layar (ꦂ) pada suku kata yang dimatikan di tengah kata
                         result += 'ꦂ';
                         
                         let nextConsTemp = matchConsonant(word, peekIdx);
@@ -517,7 +518,8 @@ function transliterateKawi(rawText) {
                             nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                             lastConsIsMati = false;
                         } else {
-                            result += 'ꦫ꧀';
+                            // Layar (ꦂ) untuk r mati di akhir kata
+                            result += 'ꦂ';
                             lastConsIsMati = true;
                         }
                         i = nextIdx;
@@ -535,7 +537,6 @@ function transliterateKawi(rawText) {
                     let handledCrossWord = false;
 
                     if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                        // Nga lelet di awal kata berikutnya setelah konsonan mati
                         result += consChar + '꧀ꦭꦼ';
                         nextWordToken.val = nextWordToken.val.substr(2);
                         handledCrossWord = true;
