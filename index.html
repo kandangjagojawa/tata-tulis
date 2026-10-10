@@ -29,7 +29,6 @@
 
         .input-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
         
-        /* Container Input dengan Tombol Clear (X) */
         .textarea-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         textarea { 
             width: 100%; 
@@ -64,7 +63,6 @@
         }
         .btn-clear:hover { background: #cbd5e1; color: #0f172a; }
 
-        /* Controls Section (Sliders) */
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -75,7 +73,7 @@
             border: 1px solid var(--border);
         }
         .control-group { display: flex; flex-direction: column; gap: 5px; }
-        .control-group label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; justify-content: space-between; }
+        .control-group label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; justify-space-between; }
         .control-group input[type="range"] { width: 100%; cursor: pointer; }
 
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
@@ -96,7 +94,6 @@
         .font-ngayogyann { font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif; }
         .font-ngayogyan { font-family: 'Ngayogyan', 'Noto Sans Javanese', sans-serif; }
 
-        /* Style Peringatan Aksara Rekan Khusus */
         .rekan-highlight { color: var(--warning-color); font-weight: bold; }
         .rekan-warning-badge {
             color: var(--warning-color);
@@ -117,7 +114,6 @@
     <div class="input-section">
         <label style="font-weight: bold; display: block; margin-bottom: 8px;">Huruf Latin</label>
         
-        <!-- Textarea Wrapper dengan Tombol X -->
         <div class="textarea-wrapper">
             <textarea id="inputLatin" 
                       placeholder="Ketik teks di sini..." 
@@ -128,7 +124,6 @@
             <button id="btnClear" class="btn-clear" title="Hapus teks">&times;</button>
         </div>
 
-        <!-- Slider Pengatur Ukuran & Spasi Vertikal -->
         <div class="controls-grid">
             <div class="control-group">
                 <label for="sliderFontSize">Ukuran Aksara Jawa: <span id="valFontSize">1.8rem</span></label>
@@ -229,14 +224,12 @@
     </div>
 </div>
 
-<!-- PEMANGGILAN MODUL EXTERNAL -->
 <script src="jgst.js"></script>
 <script src="ipa.js"></script>
 
 <script>
     const Modules = { kbj: null, sriwedari: null, simplified: null, tradisional: null, carakawi: null };
 
-    // Pemetaan Aksara Rekan Khusus (Hanya dikenal di Simplified & Tradisional)
     const REKAN_KHUSUS_MAP = {
         'q': 'ꦐ', 'hh': 'ꦲ꦳', 'xng': 'ꦔ꦳', 'ts': 'ꦱ꦳', 'shh': 'ꦰ꦳',
         'xsy': 'ꦯ꦳', 'dl': 'ꦭ꦳', 'tth': 'ꦡ꦳', 'zh': 'ꦣ꦳', 'x': 'ꦑ꦳'
@@ -266,45 +259,44 @@
         processTransliteration();
     }
 
-    // Fungsi pemroses JGST & IPA dengan penanganan Sandhi Shift lintas kata
+    // Fungsi JGST & IPA dengan penanda internal aman (\uE000)
     function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (!rawInput.trim() || !Modules[fnKey]) {
             return { jgst: '-', ipa: '-' };
         }
 
+        const MARKER = '\uE000';
         const tokens = rawInput.split(/(\s+)/);
         let markedInput = "";
 
         for (let i = 0; i < tokens.length; i++) {
-            if (/^\s+$/.test(tokens[i])) {
-                markedInput += tokens[i];
-            } else if (tokens[i] !== '') {
-                markedInput += tokens[i] + '|';
+            let t = tokens[i];
+            if (/^\s+$/.test(t)) {
+                markedInput += t;
+            } else if (t !== '') {
+                markedInput += t + MARKER;
             }
         }
 
-        if (markedInput.endsWith('|')) {
-            markedInput = markedInput.slice(0, -1);
-        }
-
-        // Transliterasi kalimat utuh dengan marker '|' untuk mendeteksi sandhi lintas kata
         const aksaraMarked = Modules[fnKey](markedInput);
-        const aksaraSegments = aksaraMarked.split('|');
+        const aksaraSegments = aksaraMarked.split(MARKER);
 
         let rawJgstSegments = [];
         for (let i = 0; i < aksaraSegments.length; i++) {
             let segAksara = aksaraSegments[i];
-            let jgstSeg = '-';
-            if (typeof transliterateToJGST === 'function') {
+            let jgstSeg = '';
+            if (segAksara && typeof transliterateToJGST === 'function') {
                 jgstSeg = transliterateToJGST(segAksara);
+            } else {
+                jgstSeg = segAksara;
             }
+
             if (isSastraLampah && /^h[aāiīuūěéèeoꜽꜷṛḷ]/i.test(jgstSeg)) {
                 jgstSeg = jgstSeg.substring(1);
             }
             rawJgstSegments.push(jgstSeg);
         }
 
-        // Lakukan shifting pergeseran sandhi (lě, ŕě) jika menempel di akhir kata sebelum spasi
         let cleanedJgstSegments = [];
         let carryOver = "";
 
@@ -322,7 +314,6 @@
                 }
             }
 
-            // Hapus visual pangkon '/' jika berada di tengah kalimat
             if (i < rawJgstSegments.length - 1 && seg.endsWith('/')) {
                 seg = seg.slice(0, -1);
             }
@@ -334,7 +325,6 @@
             cleanedJgstSegments[cleanedJgstSegments.length - 1] = carryOver + cleanedJgstSegments[cleanedJgstSegments.length - 1];
         }
 
-        // Gabungkan kembali hasil JGST & IPA sesuai susunan token asli
         let jgstList = [];
         let ipaList = [];
         let wordCounter = 0;
@@ -345,7 +335,7 @@
                 jgstList.push(token);
                 ipaList.push(token);
             } else if (token !== '') {
-                let jgstKata = cleanedJgstSegments[wordCounter] || '-';
+                let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
                 let ipaKata = '-';
                 if (typeof convertJGSTtoIPA === 'function') {
                     ipaKata = convertJGSTtoIPA(jgstKata, token);
@@ -377,11 +367,9 @@
             formattedInput = rawInput.replace(/e'/g, 'é').replace(/E'/g, 'É');
         }
 
-        // 1. Aksara Jawa Scripto Continua
         let aksaraUtuh = Modules[fnKey](formattedInput);
         let warningText = "";
 
-        // Deteksi dan sorot Aksara Rekan Khusus untuk KBJ, Sriwedari, dan Cara Kawi
         if (checkRekanKhusus) {
             let detectedAksaraJawa = [];
             let keys = Object.keys(REKAN_KHUSUS_MAP).sort((a, b) => b.length - a.length);
@@ -416,7 +404,6 @@
 
         outAksara.innerHTML = aksaraUtuh + warningText;
 
-        // 2. Pemrosesan JGST & IPA dengan Sandhi Shift
         const resultShifted = generateJGSTAndIPAShifted(formattedInput, fnKey, isSastraLampah);
         outJGST.textContent = resultShifted.jgst;
         outIPA.textContent = resultShifted.ipa;
@@ -424,8 +411,6 @@
 
     function processTransliteration() {
         const input = document.getElementById('inputLatin').value;
-        
-        // Tampilkan/Sembunyikan tombol 'X' pembersih input
         const btnClear = document.getElementById('btnClear');
         btnClear.style.display = input.length > 0 ? 'flex' : 'none';
 
@@ -436,7 +421,6 @@
         processCardOutput('CaraKawi', 'carakawi', input, true, true);
     }
 
-    // Event Listener Tombol Hapus (X)
     document.getElementById('btnClear').addEventListener('click', () => {
         const inputLatin = document.getElementById('inputLatin');
         inputLatin.value = '';
@@ -444,7 +428,6 @@
         processTransliteration();
     });
 
-    // Event Listener Slider Ukuran Font & Spasi Vertikal
     document.getElementById('sliderFontSize').addEventListener('input', (e) => {
         const val = e.target.value;
         document.getElementById('valFontSize').textContent = `${val}rem`;
