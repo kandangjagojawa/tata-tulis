@@ -13,6 +13,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
         
         let str = word.toLowerCase().replace(/\/$/, '');
         const vowels = 'aāiīuūěéèeoꜽꜷṛḷ';
+        const consPattern = '[bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕŋ]';
 
         // Konversi awal untuk Pengkal (ỿ) dari JGST menjadi 'y'
         str = str.replace(/ỿ/g, 'y');
@@ -40,7 +41,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             if (isVowelEnd) {
                 if (lastChar === 'a') {
                     if (!/ana$/i.test(str)) {
-                        str = str.replace(/([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]*a)([bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]+a)$/i, function(match, penult, ult) {
+                        str = str.replace(new RegExp(`(${consPattern}*a)(${consPattern}+a)$`, 'i'), function(match, penult, ult) {
                             return penult.replace(/a/g, 'ɔ') + ult;
                         });
                     }
@@ -51,7 +52,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
                 str = str.replace(new RegExp(`([${vowels}])([^${vowels}]*)$`), function(match, vowel, cons) {
                     if (vowel === 'i') return 'ɪ' + cons;
                     if (vowel === 'u') return 'ʊ' + cons;
-                    if (vowel === 'é' || vowel === 'è' || vowel === 'e') return 'ɛ' + cons;
+                    if (vowel in ['é', 'è', 'e']) return 'ɛ' + cons;
                     if (vowel === 'o') return 'ɔ' + cons;
                     return vowel + cons;
                 });
@@ -62,10 +63,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
             }
 
             // Aturan Khusus Vokal Taling Tarung (o) Miring (ɔ)
-            const consPattern = '[bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]';
-            // a. Di depan suku kata terakhir vokal terbuka 'i' atau 'u' (kopi -> kɔpi, wolu -> wɔlu)
             str = str.replace(new RegExp(`o(${consPattern}+[iu])$`, 'i'), 'ɔ$1');
-            // b. Di depan suku kata terakhir tertutup bersandhangan pepet (horeg -> hɔreg, bosen -> bɔsen)
             str = str.replace(new RegExp(`o(${consPattern}+[ěeə]${consPattern}+)$`, 'i'), 'ɔ$1');
         }
 
