@@ -11,6 +11,19 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
 
     let words = jgstStr.split(/(\s+)/);
 
+    // Helper untuk normalisasi vokal input Latin asli
+    function normVowels(s) {
+        return (s || '').toLowerCase()
+            .replace(/[āã]/g, 'a')
+            .replace(/[ī]/g, 'i')
+            .replace(/[ū]/g, 'u')
+            .replace(/[ěéèê]/g, 'e')
+            .replace(/[õö]/g, 'o')
+            .replace(/[^a-z]/g, '');
+    }
+
+    const normRaw = normVowels(rawLatinToken);
+
     let pujlWords = words.map(word => {
         if (/^\s+$/.test(word)) return word;
 
@@ -19,19 +32,16 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
         // 2. Konversi awal Pengkal (ỿ) menjadi 'y'
         str = str.replace(/ỿ/g, 'y');
 
-        // 3. Menghilangkan Aksara Ha ('h') atau Panglancar ('y') setelah ater-ater 'di-' yang bertemu vokal
-        str = str.replace(/^di-?[hy]([aāiīuūěéèeoꜽꜷṛḷ])/i, 'di$1');
-
-        // 4. Degeminasi konsonan ganda hasil morfologi/pasangan (nn -> n, kk -> k, dst.)
+        // 3. Degeminasi konsonan ganda hasil morfologi/pasangan (nn -> n, kk -> k, dst.)
         str = str.replace(/([^aāiīuūěéèeoꜽꜷṛḷ\s])\1+/gi, '$1');
 
-        // 5. Deteksi Ha Tipis vs Ha Tebal berdasarkan input Latin asli
+        // 4. Deteksi Ha Tipis vs Ha Tebal berdasarkan input Latin asli
         const isLatinStartWithH = /^h/i.test(rawLatinToken || '');
         if (!isLatinStartWithH) {
             str = str.replace(/^h([aāiīuūěéèeoꜽꜷṛḷ])/i, '$1');
         }
 
-        // 6. Pemetaan Karakter JGST ke PUJL
+        // 5. Pemetaan Karakter JGST ke PUJL
         const pujlMap = [
             { pattern: /ā/g, replace: 'a' },
             { pattern: /ī/g, replace: 'i' },
@@ -68,6 +78,22 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
 
         pujlMap.forEach(item => {
             str = str.replace(item.pattern, item.replace);
+        });
+
+        // 6. Penghilangan Panglancar (h, y, w) pada vokal rangkap
+        // Kecuali jika input Latin asli pengguna menyertakan h, y, atau w di antara vokal tersebut
+        const vowelPattern = '[aiueoéè]';
+        const glideRegex = new RegExp(`(${vowelPattern})([hyw])(${vowelPattern})`, 'gi');
+
+        str = str.replace(glideRegex, function(match, v1, glide, v2) {
+            const v1Norm = normVowels(v1);
+            const v2Norm = normVowels(v2);
+            const checkPattern = new RegExp(v1Norm + '[hyw]' + v2Norm, 'i');
+
+            if (normRaw && checkPattern.test(normRaw)) {
+                return match; // Pertahankan jika ada eksplisit pada input Latin
+            }
+            return v1 + v2; // Hapus panglancar jika tidak ada di input Latin
         });
 
         // 7. Degeminasi konsonan majemuk ganda setelah penyederhanaan
