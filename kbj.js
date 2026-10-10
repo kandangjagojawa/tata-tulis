@@ -392,16 +392,21 @@ function transliterasiKalimat(teks) {
 
 function transliterasiKata(rawLatin) {
     if (!rawLatin) return "";
-    if (/[a-zA-Z]/i.test(rawLatin) && /(nc|nj)/i.test(rawLatin) && !/^\(/.test(rawLatin)) {
-        let mainRes = transliterasiSingleKata(rawLatin);
-        let altLatin = rawLatin.replace(/nc/gi, 'nyc').replace(/nj/gi, 'nyj');
+
+    let markerMatch = rawLatin.match(/([\uE000-\uE0FF]+)$/);
+    let marker = markerMatch ? markerMatch[1] : "";
+    let cleanLatin = marker ? rawLatin.slice(0, -marker.length) : rawLatin;
+
+    if (/[a-zA-Z]/i.test(cleanLatin) && /(nc|nj)/i.test(cleanLatin) && !/^\(/.test(cleanLatin)) {
+        let mainRes = transliterasiSingleKata(cleanLatin);
+        let altLatin = cleanLatin.replace(/nc/gi, 'nyc').replace(/nj/gi, 'nyj');
         let altRes = transliterasiSingleKata(altLatin);
         
         if (mainRes !== altRes) {
-            return `${mainRes} (${altRes})`;
+            return `${mainRes} (${altRes})${marker}`;
         }
     }
-    return transliterasiSingleKata(rawLatin);
+    return transliterasiSingleKata(cleanLatin) + marker;
 }
 
 function transliterasiSingleKata(rawLatin) {
