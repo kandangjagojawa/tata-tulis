@@ -1,3 +1,8 @@
+/**
+ * kbj.js
+ * Modul Transliterasi Latin ke Aksara Jawa Paugeran KBJ
+ */
+
 const KAMUS_AKSARA = {
     'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
     'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -483,7 +488,7 @@ function transliterasiSingleKata(rawLatin) {
     let isPrefixException = false;
     
     if (wordMatchForExc) {
-        const excBases = "dian.*|diar.*|diare.*|dialog.*|diana.*|diaper.*|diastol.*|diat.*|diuretik.*|diet.*|dieng.*|diesel.*|dioda.*|diorama.*|dion.*|dioksida.*";
+        const excBases = "diana.*|diandra.*|diar.*|diare.*|dialog.*|diaper.*|diastol.*|diat.*|diuretik.*|diet.*|dieng.*|diesel.*|dioda.*|diorama.*|dion.*|dioksida.*";
         const excPattern = new RegExp(`^(${excBases})$`, 'i');
         if (excPattern.test(wordMatchForExc[1])) {
             isPrefixException = true;
