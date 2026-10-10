@@ -6,6 +6,9 @@
 function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
     if (!jgstStr || jgstStr === '-') return '-';
 
+    // 1. Bersihkan teks alternatif dalam kurung jika ada (misalnya dari KBJ: "(kaña)")
+    jgstStr = jgstStr.replace(/\s*\([^)]*\)/g, '');
+
     let words = jgstStr.split(/(\s+)/);
 
     let pujlWords = words.map(word => {
@@ -13,19 +16,19 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
 
         let str = word.toLowerCase().replace(/\/$/, '');
 
-        // 1. Konversi awal Pengkal (ỿ) menjadi 'y'
+        // 2. Konversi awal Pengkal (ỿ) menjadi 'y'
         str = str.replace(/ỿ/g, 'y');
 
-        // 2. Degeminasi konsonan ganda hasil morfologi/pasangan (nn -> n, kk -> k, dst.)
+        // 3. Degeminasi konsonan ganda hasil morfologi/pasangan (nn -> n, kk -> k, dst.)
         str = str.replace(/([^aāiīuūěéèeoꜽꜷṛḷ\s])\1+/gi, '$1');
 
-        // 3. Deteksi Ha Tipis vs Ha Tebal berdasarkan input Latin asli
+        // 4. Deteksi Ha Tipis vs Ha Tebal berdasarkan input Latin asli
         const isLatinStartWithH = /^h/i.test(rawLatinToken || '');
         if (!isLatinStartWithH) {
             str = str.replace(/^h([aāiīuūěéèeoꜽꜷṛḷ])/i, '$1');
         }
 
-        // 4. Pemetaan Karakter JGST ke PUJL
+        // 5. Pemetaan Karakter JGST ke PUJL
         const pujlMap = [
             { pattern: /ā/g, replace: 'a' },
             { pattern: /ī/g, replace: 'i' },
@@ -36,6 +39,8 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             { pattern: /ḹ|ḷ/g, replace: 'le' },
             { pattern: /ꜽ/g, replace: 'ai' },
             { pattern: /ꜷ/g, replace: 'au' },
+            { pattern: /ñc/g, replace: 'nc' },
+            { pattern: /ñj/g, replace: 'nj' },
             { pattern: /ñ/g, replace: 'ny' },
             { pattern: /[ṅŋ]/g, replace: 'ng' },
             { pattern: /ṇ/g, replace: 'n' },
@@ -62,14 +67,17 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             str = str.replace(item.pattern, item.replace);
         });
 
-        // 5. Degeminasi konsonan majemuk ganda setelah penyederhanaan
+        // 6. Degeminasi konsonan majemuk ganda setelah penyederhanaan
         // Melindungi gugus 'ngg' agar tidak terpotong menjadi 'ng'
         str = str.replace(/ngg/g, '___NGG___');
         str = str.replace(/(th|dh|ng|ny)\1+/g, '$1');
         str = str.replace(/([bcdfghjklmnpqrstvwxyz])\1+/g, '$1');
         str = str.replace(/___NGG___/g, 'ngg');
 
-        // 6. Hapus sisa karakter Unicode Aksara Jawa jika ada
+        // 7. Memastikan bentuk nyc/nyj bersih menjadi nc/nj jika masih tersisa
+        str = str.replace(/nyc/g, 'nc').replace(/nyj/g, 'nj');
+
+        // 8. Hapus sisa karakter Unicode Aksara Jawa jika ada
         str = str.replace(/[\uA980-\uA9DF]/g, '');
 
         return str;
