@@ -32,7 +32,7 @@
         .input-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 10px;
@@ -40,8 +40,14 @@
         .input-title {
             font-weight: bold;
             font-size: 1.1rem;
+            padding-top: 2px;
         }
-        .card-toggles {
+        .toggles-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card-toggles, .sub-toggles {
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
@@ -53,6 +59,7 @@
             font-weight: bold;
             color: #64748b;
             text-transform: uppercase;
+            min-width: 75px;
         }
         .card-toggle-item {
             display: inline-flex;
@@ -156,13 +163,21 @@
     <div class="input-section">
         <div class="input-header">
             <span class="input-title">Huruf Latin</span>
-            <div class="card-toggles">
-                <span class="toggle-label">Tampilkan:</span>
-                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="KBJ" checked> 1. KBJ</label>
-                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Sriwedari" checked> 2. Sriwedari</label>
-                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Simplified" checked> 3. KAJ Simplified</label>
-                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Tradisional" checked> 4. KAJ Tradisional</label>
-                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="CaraKawi" checked> 5. Cara Kawi</label>
+            <div class="toggles-wrapper">
+                <div class="card-toggles">
+                    <span class="toggle-label">Kartu:</span>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="KBJ" checked> 1. KBJ</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Sriwedari" checked> 2. Sriwedari</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Simplified" checked> 3. KAJ Simplified</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Tradisional" checked> 4. KAJ Tradisional</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="CaraKawi" checked> 5. Cara Kawi</label>
+                </div>
+                <div class="sub-toggles">
+                    <span class="toggle-label">Notasi:</span>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-sub" data-sub="jgst" checked> JGST</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-sub" data-sub="ipa" checked> IPA</label>
+                    <label class="card-toggle-item"><input type="checkbox" class="toggle-sub" data-sub="pujl" checked> PUJL</label>
+                </div>
             </div>
         </div>
         
@@ -192,19 +207,19 @@
         <!-- 1. KBJ -->
         <div class="card" id="cardKBJ">
             <div class="card-header">1. KBJ</div>
-            <div class="output-group">
+            <div class="output-group group-aksara">
                 <div class="output-label">Aksara Jawa</div>
                 <div id="outKBJ_Aksara" class="box-aksara font-ngayogyann">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-jgst">
                 <div class="output-label">JGST</div>
                 <div id="outKBJ_JGST" class="box-jgst">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-ipa">
                 <div class="output-label">IPA</div>
                 <div id="outKBJ_IPA" class="box-ipa">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-pujl">
                 <div class="output-label">PUJL</div>
                 <div id="outKBJ_PUJL" class="box-pujl">-</div>
             </div>
@@ -213,19 +228,19 @@
         <!-- 2. Sriwedari -->
         <div class="card" id="cardSriwedari">
             <div class="card-header">2. Sriwedari</div>
-            <div class="output-group">
+            <div class="output-group group-aksara">
                 <div class="output-label">Aksara Jawa</div>
                 <div id="outSriwedari_Aksara" class="box-aksara font-ngayogyann">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-jgst">
                 <div class="output-label">JGST</div>
                 <div id="outSriwedari_JGST" class="box-jgst">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-ipa">
                 <div class="output-label">IPA</div>
                 <div id="outSriwedari_IPA" class="box-ipa">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-pujl">
                 <div class="output-label">PUJL</div>
                 <div id="outSriwedari_PUJL" class="box-pujl">-</div>
             </div>
@@ -234,19 +249,19 @@
         <!-- 3. KAJ Simplified -->
         <div class="card" id="cardSimplified">
             <div class="card-header">3. KAJ Simplified</div>
-            <div class="output-group">
+            <div class="output-group group-aksara">
                 <div class="output-label">Aksara Jawa</div>
                 <div id="outSimplified_Aksara" class="box-aksara font-ngayogyann">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-jgst">
                 <div class="output-label">JGST</div>
                 <div id="outSimplified_JGST" class="box-jgst">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-ipa">
                 <div class="output-label">IPA</div>
                 <div id="outSimplified_IPA" class="box-ipa">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-pujl">
                 <div class="output-label">PUJL</div>
                 <div id="outSimplified_PUJL" class="box-pujl">-</div>
             </div>
@@ -255,19 +270,19 @@
         <!-- 4. KAJ Tradisional -->
         <div class="card" id="cardTradisional">
             <div class="card-header">4. KAJ Tradisional</div>
-            <div class="output-group">
+            <div class="output-group group-aksara">
                 <div class="output-label">Aksara Jawa</div>
                 <div id="outTradisional_Aksara" class="box-aksara font-ngayogyan">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-jgst">
                 <div class="output-label">JGST</div>
                 <div id="outTradisional_JGST" class="box-jgst">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-ipa">
                 <div class="output-label">IPA</div>
                 <div id="outTradisional_IPA" class="box-ipa">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-pujl">
                 <div class="output-label">PUJL</div>
                 <div id="outTradisional_PUJL" class="box-pujl">-</div>
             </div>
@@ -276,19 +291,19 @@
         <!-- 5. Cara Kawi -->
         <div class="card" id="cardCaraKawi">
             <div class="card-header">5. Cara Kawi (Mardi Kawi)</div>
-            <div class="output-group">
+            <div class="output-group group-aksara">
                 <div class="output-label">Aksara Jawa</div>
                 <div id="outCaraKawi_Aksara" class="box-aksara font-ngayogyan">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-jgst">
                 <div class="output-label">JGST</div>
                 <div id="outCaraKawi_JGST" class="box-jgst">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-ipa">
                 <div class="output-label">IPA</div>
                 <div id="outCaraKawi_IPA" class="box-ipa">-</div>
             </div>
-            <div class="output-group">
+            <div class="output-group group-pujl">
                 <div class="output-label">PUJL</div>
                 <div id="outCaraKawi_PUJL" class="box-pujl">-</div>
             </div>
@@ -555,6 +570,17 @@
             if (cardEl) {
                 cardEl.style.display = e.target.checked ? '' : 'none';
             }
+        });
+    });
+
+    // Inisialisasi kontrol tampil/sembunyi sub-notasi (JGST, IPA, PUJL)
+    document.querySelectorAll('.toggle-sub').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            const subType = e.target.dataset.sub;
+            const targetElements = document.querySelectorAll('.group-' + subType);
+            targetElements.forEach(el => {
+                el.style.display = e.target.checked ? '' : 'none';
+            });
         });
     });
 
