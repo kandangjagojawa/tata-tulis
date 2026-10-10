@@ -281,20 +281,24 @@
         processTransliteration();
     }
 
-    // Fungsi penetral khusus modul Sriwedari untuk umpan IPA & PUJL
-    function netralkanSriwedariJGST(jgstStr, rawLatin) {
+    // Fungsi penetral khusus modul (KBJ, Sriwedari, Simplified) untuk umpan IPA & PUJL
+    function netralkanJGSTForPUJL(jgstStr, rawLatin, fnKey) {
         if (!jgstStr || !rawLatin) return jgstStr;
         let rawLower = rawLatin.toLowerCase();
         let res = jgstStr;
         
-        // 1. Netralkan vokal 'o' taling tarung palsu kembali ke 'a' jika vokal Latin aslinya adalah 'a'
-        if (/o/i.test(res) && /a/i.test(rawLower) && !/o/i.test(rawLower)) {
-            res = res.replace(/o/g, 'a').replace(/O/g, 'A');
+        // 1. Khusus Sriwedari: Netralkan vokal 'o' taling tarung palsu kembali ke 'a' jika vokal Latin aslinya adalah 'a'
+        if (fnKey === 'sriwedari') {
+            if (/o/i.test(res) && /a/i.test(rawLower) && !/o/i.test(rawLower)) {
+                res = res.replace(/o/g, 'a').replace(/O/g, 'A');
+            }
         }
 
-        // 2. Netralkan ñc dan ñj kembali ke nc dan nj (agar PUJL/IPA menghasilkan nc dan nj, bukan nyc/nyj)
-        res = res.replace(/ñc/g, 'nc').replace(/Ñc/g, 'Nc')
-                 .replace(/ñj/g, 'nj').replace(/Ñj/g, 'Nj');
+        // 2. Netralkan ñc dan ñj kembali ke nc dan nj (KBJ, Sriwedari, Simplified)
+        if (['kbj', 'sriwedari', 'simplified'].includes(fnKey)) {
+            res = res.replace(/ñc/g, 'nc').replace(/Ñc/g, 'Nc')
+                     .replace(/ñj/g, 'nj').replace(/Ñj/g, 'Nj');
+        }
 
         return res;
     }
@@ -382,11 +386,8 @@
             } else if (token !== '') {
                 let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
                 
-                // Khusus Sriwedari: Netralkan JGST untuk umpan IPA & PUJL
-                let jgstForIPAAndPUJL = jgstKata;
-                if (fnKey === 'sriwedari') {
-                    jgstForIPAAndPUJL = netralkanSriwedariJGST(jgstKata, token);
-                }
+                // Netralkan JGST untuk umpan IPA & PUJL
+                let jgstForIPAAndPUJL = netralkanJGSTForPUJL(jgstKata, token, fnKey);
 
                 let ipaKata = '-';
                 if (typeof convertJGSTtoIPA === 'function') {
@@ -396,6 +397,11 @@
                 let pujlKata = '-';
                 if (typeof convertJGSTtoPUJL === 'function') {
                     pujlKata = convertJGSTtoPUJL(jgstForIPAAndPUJL, token);
+                }
+
+                // Hilangkan alternatif penulisan di dalam kurung dan pastikan nc/nj bersih khusus untuk PUJL
+                if (pujlKata && pujlKata !== '-') {
+                    pujlKata = pujlKata.replace(/\s*\([^)]*\)/g, '').replace(/nyc/gi, 'nc').replace(/nyj/gi, 'nj').trim();
                 }
 
                 jgstList.push(jgstKata);
