@@ -259,7 +259,7 @@
         processTransliteration();
     }
 
-    // Fungsi JGST & IPA dengan penanda internal aman (\uE000)
+    // Fungsi pemroses JGST & IPA dengan penanganan sandhi shift (ḷ, lě, ŕě)
     function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (!rawInput.trim() || !Modules[fnKey]) {
             return { jgst: '-', ipa: '-' };
@@ -305,7 +305,10 @@
             carryOver = "";
 
             if (i < rawJgstSegments.length - 1) {
-                if (seg.endsWith('lě')) {
+                if (seg.endsWith('ḷ')) {
+                    seg = seg.slice(0, -1);
+                    carryOver = "ḷ";
+                } else if (seg.endsWith('lě')) {
                     seg = seg.slice(0, -2);
                     carryOver = "lě";
                 } else if (seg.endsWith('ŕě')) {
