@@ -471,6 +471,25 @@ function transliterasiKalimat(teks) {
 function transliterasiKata(rawLatin) {
     if (!rawLatin) return "";
 
+    let markerMatch = rawLatin.match(/([\uE000-\uE0FF]+)$/);
+    let marker = markerMatch ? markerMatch[1] : "";
+    let cleanLatin = marker ? rawLatin.slice(0, -marker.length) : rawLatin;
+
+    if (/[a-zA-Z]/i.test(cleanLatin) && /(nc|nj)/i.test(cleanLatin) && !/^\(/.test(cleanLatin)) {
+        let mainRes = transliterasiSingleKata(cleanLatin);
+        let altLatin = cleanLatin.replace(/nc/gi, 'nyc').replace(/nj/gi, 'nyj');
+        let altRes = transliterasiSingleKata(altLatin);
+        
+        if (mainRes !== altRes) {
+            return `${mainRes} (${altRes})${marker}`;
+        }
+    }
+    return transliterasiSingleKata(cleanLatin) + marker;
+}
+
+function transliterasiSingleKata(rawLatin) {
+    if (!rawLatin) return "";
+
     let isKataNingrat = rawLatin.toLowerCase().includes('ningrat');
 
     if (/^([a-zA-Z]\.)+$/.test(rawLatin)) {
@@ -547,7 +566,7 @@ function transliterasiKata(rawLatin) {
         let lastChar = root.slice(-1).toLowerCase();
         let lastTwoChars = root.slice(-2).toLowerCase();
         let vowels = ['a','i','u','e','o','é','è','ê'];
-        
+
         if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
             modSuffix = 'kxh' + modSuffix.substring(1); 
         }
@@ -555,7 +574,9 @@ function transliterasiKata(rawLatin) {
         let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
         let consonantToDouble = "";
 
-        if (vowels.includes(firstCharSuffix)) {
+        if (['ni', 'nni', 'i'].includes(suffixLower) && vowels.includes(lastChar)) {
+            modSuffix = 'nni';
+        } else if (vowels.includes(firstCharSuffix)) {
             if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
                 consonantToDouble = lastTwoChars;
             } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
@@ -604,7 +625,7 @@ function transliterasiKata(rawLatin) {
             .replace(/ng/g, '1').replace(/Ng/g, '5').replace(/NG/g, '!')
             .replace(/ny/g, '2').replace(/Ny/g, '6').replace(/NY/g, '@')
             .replace(/dh/g, '3').replace(/Dh/g, '7').replace(/DH/g, '#')
-            .replace(/th/g, '4').replace(/Th/g, '8').replace(/TH/g, '$');
+            .replace(/th/g, '4').replace(/Th/g, '8').replace(/\$/g, 'TH');
 
         let isTanpa = /^tanpa$/i.test(wordOnly);
         if (!isAnuswaraHanja && !isTanpa) {
