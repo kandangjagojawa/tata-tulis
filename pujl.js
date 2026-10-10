@@ -1,13 +1,6 @@
 /**
  * pujl.js
  * Modul Konversi Transliterasi JGST ke PUJL (Pelatinan / Pedoman Umum Jawa Latin)
- * 
- * Aturan:
- * - Mengembalikan varian JGST ke huruf Latin sederhana (seperti abjad).
- * - Pepet (ě) ditulis 'e'.
- * - Taling (é, è) tetap ditulis 'é'.
- * - Mencegah double konsonan pada penambahan akhiran/panambang (degeminasi seperti pada ipa.js).
- * - Penanganan pembukaan vokal awal tanpa 'h' tipis jika input asli Latin tidak berawalan 'h'.
  */
 
 function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
@@ -44,7 +37,7 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             { pattern: /ꜽ/g, replace: 'ai' },
             { pattern: /ꜷ/g, replace: 'au' },
             { pattern: /ñ/g, replace: 'ny' },
-            { pattern: /[ṅŋ]/g, replace: 'ng' }, // Menyerap Aksara Nga (ṅ) dan Cecak (ŋ)
+            { pattern: /[ṅŋ]/g, replace: 'ng' },
             { pattern: /ṇ/g, replace: 'n' },
             { pattern: /ṭha/g, replace: 'tha' },
             { pattern: /ṭ/g, replace: 'th' },
@@ -70,8 +63,11 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
         });
 
         // 5. Degeminasi konsonan majemuk ganda setelah penyederhanaan
+        // Melindungi gugus 'ngg' agar tidak terpotong menjadi 'ng'
+        str = str.replace(/ngg/g, '___NGG___');
         str = str.replace(/(th|dh|ng|ny)\1+/g, '$1');
         str = str.replace(/([bcdfghjklmnpqrstvwxyz])\1+/g, '$1');
+        str = str.replace(/___NGG___/g, 'ngg');
 
         // 6. Hapus sisa karakter Unicode Aksara Jawa jika ada
         str = str.replace(/[\uA980-\uA9DF]/g, '');
