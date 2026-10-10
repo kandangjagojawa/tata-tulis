@@ -500,7 +500,7 @@ function transliterasiSingleKata(rawLatin) {
         let lastChar = root.slice(-1).toLowerCase();
         let lastTwoChars = root.slice(-2).toLowerCase();
         let vowels = ['a','i','u','e','o','é','è','ê'];
-        
+
         if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
             modSuffix = 'kxh' + modSuffix.substring(1); 
         }
@@ -508,7 +508,9 @@ function transliterasiSingleKata(rawLatin) {
         let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
         let consonantToDouble = "";
 
-        if (vowels.includes(firstCharSuffix)) {
+        if (['ni', 'nni', 'i'].includes(suffixLower) && vowels.includes(lastChar)) {
+            modSuffix = 'nni';
+        } else if (vowels.includes(firstCharSuffix)) {
             if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
                 consonantToDouble = lastTwoChars;
             } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
