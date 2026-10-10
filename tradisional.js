@@ -1,6 +1,7 @@
 /**
  * TRADISIONAL.JS
- * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap.
+ * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap
+ * serta penyesuaian logika Layar (r mati di tengah kata).
  */
 
 const textInput = document.getElementById('textInput');
@@ -216,7 +217,7 @@ function transliterateKawi(rawText) {
             if (c >= '0' && c <= '9') {
                 let numStr = '';
                 while (i < word.length && word[i] >= '0' && word[i] <= '9') {
-                    const numMap = {'0':'꧐','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                    const numMap = {'0':'꧐','1':'꧒','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
                     numStr += numMap[word[i]];
                     i++;
                 }
@@ -443,9 +444,12 @@ function transliterateKawi(rawText) {
                     continue;
                 }
 
+                // --- PENANGANAN KHUSUS KONSONAN R ---
                 if (cons.key === 'r') {
                     if (!isWordEnd) {
-                        result += consChar + '꧀';
+                        // 1. Tambahkan Layar (ꦂ) pada suku kata yang dimatikan
+                        result += 'ꦂ';
+                        
                         let nextConsTemp = matchConsonant(word, peekIdx);
 
                         if (nextConsTemp) {
@@ -461,7 +465,11 @@ function transliterateKawi(rawText) {
 
                             let doubleIt = true;
                             
-                            if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1.includes('ꦟ')) {
+                            // Pengecualian: TIDAK dirangkap jika disusul ha, nga, nya
+                            if (['h', 'H', 'ng', 'NG', 'ny', 'NY', 'Ny'].includes(nextConsTemp.key)) {
+                                doubleIt = false;
+                            }
+                            else if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1.includes('ꦟ')) {
                                 consChar2_1 = consChar2_1.replace('ꦤ', 'ꦟ');
                                 consChar2_2 = consChar2_2.replace('ꦟ', 'ꦤ');
                             } 
@@ -630,42 +638,57 @@ function transliterateKawi(rawText) {
 }
 
 function updatePreview() {
+    if (!textInput || !previewOutput) return;
     const latinText = textInput.value;
     const jawaText = transliterateKawi(latinText);
     previewOutput.textContent = jawaText;
-    charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
+    if (charCount) charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
 }
 
-fontSelect.addEventListener('change', (e) => {
-    previewOutput.style.fontFamily = `'${e.target.value}', sans-serif`;
-});
-
-textInput.addEventListener('input', updatePreview);
-
-fontSizeRange.addEventListener('input', (e) => {
-    const size = e.target.value;
-    fontSizeVal.textContent = size;
-    previewOutput.style.fontSize = size + 'px';
-});
-
-lineHeightRange.addEventListener('input', (e) => {
-    const height = e.target.value;
-    lineHeightVal.textContent = height;
-    previewOutput.style.lineHeight = height;
-});
-
-copyBtn.addEventListener('click', () => {
-    const textToCopy = previewOutput.textContent;
-    if (!textToCopy) return;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        alert('Aksara Jawa berhasil disalin ke papan klip.');
+if (fontSelect) {
+    fontSelect.addEventListener('change', (e) => {
+        if (previewOutput) previewOutput.style.fontFamily = `'${e.target.value}', sans-serif`;
     });
-});
+}
 
-clearBtn.addEventListener('click', () => {
-    textInput.value = '';
+if (textInput) {
+    textInput.addEventListener('input', updatePreview);
+}
+
+if (fontSizeRange) {
+    fontSizeRange.addEventListener('input', (e) => {
+        const size = e.target.value;
+        if (fontSizeVal) fontSizeVal.textContent = size;
+        if (previewOutput) previewOutput.style.fontSize = size + 'px';
+    });
+}
+
+if (lineHeightRange) {
+    lineHeightRange.addEventListener('input', (e) => {
+        const height = e.target.value;
+        if (lineHeightVal) lineHeightVal.textContent = height;
+        if (previewOutput) previewOutput.style.lineHeight = height;
+    });
+}
+
+if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+        const textToCopy = previewOutput ? previewOutput.textContent : '';
+        if (!textToCopy) return;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('Aksara Jawa berhasil disalin ke papan klip.');
+        });
+    });
+}
+
+if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+        if (textInput) textInput.value = '';
+        updatePreview();
+        if (textInput) textInput.focus();
+    });
+}
+
+if (textInput && previewOutput) {
     updatePreview();
-    textInput.focus();
-});
-
-updatePreview();
+}
