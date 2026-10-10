@@ -453,37 +453,7 @@ function transliterasiSingleKata(rawLatin) {
 
     let latinProcessed = rawLatin;
 
-    latinProcessed = latinProcessed.replace(/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/g, function(match, root, suffix) {
-        if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
-
-        let suffixLower = suffix.toLowerCase();
-        let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en' || suffixLower === 'nen');
-        let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
-
-        let lastChar = root.slice(-1).toLowerCase();
-        let lastTwoChars = root.slice(-2).toLowerCase();
-        let vowels = ['a','i','u','e','o','é','è','ê'];
-
-        if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
-            modSuffix = 'kxh' + modSuffix.substring(1); 
-        }
-
-        let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
-        let consonantToDouble = "";
-
-        if (['ni', 'nni', 'i'].includes(suffixLower) && vowels.includes(lastChar)) {
-            modSuffix = 'nni';
-        } else if (vowels.includes(firstCharSuffix)) {
-            if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
-                consonantToDouble = lastTwoChars;
-            } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
-                consonantToDouble = lastChar; 
-            }
-        }
-        return root + consonantToDouble + modSuffix;
-    });
-
-    // Pengecualian kata serapan/asing berawalan di- agar tidak dianggap ater-ater
+    // 1. Pengecualian kata serapan/asing berawalan di- agar tidak dianggap ater-ater
     let wordMatchForExc = latinProcessed.match(/^([a-zA-ZéèêÉÈÊ]+)/);
     let isPrefixException = false;
     
@@ -495,6 +465,7 @@ function transliterasiSingleKata(rawLatin) {
         }
     }
 
+    // 2. Pemrosesan ater-ater (di, dak, tak, kok, ka, ke, ko) yang bertemu vokal
     if (!isPrefixException) {
         latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)-?([aiueoéèê])/i, function(match, p1, p2) {
             let p1Lower = p1.toLowerCase();
@@ -503,6 +474,39 @@ function transliterasiSingleKata(rawLatin) {
             } else {
                 return p1 + 'hx' + p2; 
             }
+        });
+    }
+
+    // 3. Pemrosesan tanda hubung (sufiks/penggabungan) berulang sampai seluruh tanda hubung habis terproses
+    while (/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/.test(latinProcessed)) {
+        latinProcessed = latinProcessed.replace(/([a-zA-ZéèêÉÈÊ]+)-([a-zA-ZéèêÉÈÊ]+)/g, function(match, root, suffix) {
+            if (root.toLowerCase() === suffix.toLowerCase()) return root + suffix;
+
+            let suffixLower = suffix.toLowerCase();
+            let isPepetSuffix = (suffixLower === 'aken' || suffixLower === 'kaken' || suffixLower === 'en' || suffixLower === 'nen');
+            let modSuffix = isPepetSuffix ? suffix.replace(/[eéèê]/gi, 'e') : suffix.replace(/[eéèê]/gi, 'é');
+
+            let lastChar = root.slice(-1).toLowerCase();
+            let lastTwoChars = root.slice(-2).toLowerCase();
+            let vowels = ['a','i','u','e','o','é','è','ê'];
+
+            if ((modSuffix.toLowerCase() === 'kaké' || modSuffix.toLowerCase() === 'kaken') && vowels.includes(lastChar)) {
+                modSuffix = 'kxh' + modSuffix.substring(1); 
+            }
+
+            let firstCharSuffix = modSuffix.charAt(0).toLowerCase();
+            let consonantToDouble = "";
+
+            if (['ni', 'nni', 'i'].includes(suffixLower) && vowels.includes(lastChar)) {
+                modSuffix = 'nni';
+            } else if (vowels.includes(firstCharSuffix)) {
+                if (['ng', 'ny', 'dh', 'th'].includes(lastTwoChars)) {
+                    consonantToDouble = lastTwoChars;
+                } else if (!vowels.includes(lastChar) && lastChar !== 'y' && lastChar !== 'w') {
+                    consonantToDouble = lastChar; 
+                }
+            }
+            return root + consonantToDouble + modSuffix;
         });
     }
 
