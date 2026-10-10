@@ -606,7 +606,8 @@ function transliterasiKata(rawLatin) {
             .replace(/dh/g, '3').replace(/Dh/g, '7').replace(/DH/g, '#')
             .replace(/th/g, '4').replace(/Th/g, '8').replace(/TH/g, '$');
 
-        if (!isAnuswaraHanja) {
+        let isTanpa = /^tanpa$/i.test(wordOnly);
+        if (!isAnuswaraHanja && !isTanpa) {
             token = token.replace(/a([mnMN125!6@])([bcdfghjklpqrstvwxzBCDFGHJKLPQRSTVWXZ347#8$]+)a(h?a)?$/i, 'o$1$2a$3');
         }
 
