@@ -31,14 +31,12 @@ const sandhanganMap = {
   '\uA9B4': 'ā', '\uA9B5': 'o', '\uA9B6': 'i', '\uA9B7': 'ī', '\uA9B8': 'u',
   '\uA9B9': 'ū', '\uA9BA\uA9B4': 'o', '\uA9BA\uA9B5': 'õ', '\uA9BA': 'é', '\uA9BB\uA9B4': 'ꜹ',
   '\uA9BB\uA9B5': 'ã', '\uA9BB': 'ꜽ', '\uA9BC\uA9B4': 'ö', '\uA9BC': 'ě',
-  '\uA9BD': 'ŕě', // Cakra Keret selalu menjadi ŕě
+  '\uA9BD': 'ŕě',
   '\uA9BE': 'ỿa', '\uA9BF': 'ŕa'
 };
 
 function transliterateToJGST(text) {
   if (!text) return "";
-  
-  // Bersihkan karakter kontrol Zero-Width
   text = text.replace(/[\u200C\u200D]/g, '');
 
   let result = "";
@@ -75,7 +73,6 @@ function transliterateToJGST(text) {
         let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
         let next1 = text[i];
 
-        // 1. Cakra Keret (\uA9BD) -> hapus vokal 'a' pada konsonan dasar, lalu tambah 'ŕě'
         if (next1 === '\uA9BD') {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += 'ŕě';
@@ -83,7 +80,6 @@ function transliterateToJGST(text) {
           continue;
         }
 
-        // 2. Pangkon (\uA9C0) -> Hanya berikan '/' jika berada di paling akhir teks / visual
         if (next1 === '\uA9C0') {
           let charNext = i + 1 < text.length ? text[i + 1] : "";
           let isVisualPangkon = !charNext || !/[\uA980-\uA9DF]/.test(charNext);
@@ -96,7 +92,6 @@ function transliterateToJGST(text) {
           continue;
         }
 
-        // 3. Sandhangan Lainnya
         if (sandhanganMap[next2] !== undefined) {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += sandhanganMap[next2];
