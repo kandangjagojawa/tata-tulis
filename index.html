@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membandingkan Tata Tulis Aksara Jawa</title>
     
+    <!-- Google Font Gentium Plus untuk JGST, IPA & PUJL -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -89,6 +90,7 @@
         
         .box-jgst { font-family: 'Gentium Plus', serif; font-size: 1.25rem; color: #b91c1c; font-weight: bold; word-wrap: break-word; white-space: pre-wrap;}
         .box-ipa { font-family: 'Gentium Plus', serif; font-size: 1.25rem; color: #047857; font-weight: bold; word-wrap: break-word; white-space: pre-wrap;}
+        .box-pujl { font-family: 'Gentium Plus', serif; font-size: 1.25rem; color: #1d4ed8; font-weight: bold; word-wrap: break-word; white-space: pre-wrap;}
 
         .font-ngayogyann { font-family: 'Ngayogyann', 'Noto Sans Javanese', sans-serif; }
         .font-ngayogyan { font-family: 'Ngayogyan', 'Noto Sans Javanese', sans-serif; }
@@ -151,6 +153,10 @@
                 <div class="output-label">IPA</div>
                 <div id="outKBJ_IPA" class="box-ipa">-</div>
             </div>
+            <div class="output-group">
+                <div class="output-label">PUJL</div>
+                <div id="outKBJ_PUJL" class="box-pujl">-</div>
+            </div>
         </div>
 
         <!-- 2. Sriwedari -->
@@ -167,6 +173,10 @@
             <div class="output-group">
                 <div class="output-label">IPA</div>
                 <div id="outSriwedari_IPA" class="box-ipa">-</div>
+            </div>
+            <div class="output-group">
+                <div class="output-label">PUJL</div>
+                <div id="outSriwedari_PUJL" class="box-pujl">-</div>
             </div>
         </div>
 
@@ -185,6 +195,10 @@
                 <div class="output-label">IPA</div>
                 <div id="outSimplified_IPA" class="box-ipa">-</div>
             </div>
+            <div class="output-group">
+                <div class="output-label">PUJL</div>
+                <div id="outSimplified_PUJL" class="box-pujl">-</div>
+            </div>
         </div>
 
         <!-- 4. KAJ Tradisional -->
@@ -201,6 +215,10 @@
             <div class="output-group">
                 <div class="output-label">IPA</div>
                 <div id="outTradisional_IPA" class="box-ipa">-</div>
+            </div>
+            <div class="output-group">
+                <div class="output-label">PUJL</div>
+                <div id="outTradisional_PUJL" class="box-pujl">-</div>
             </div>
         </div>
 
@@ -219,12 +237,17 @@
                 <div class="output-label">IPA</div>
                 <div id="outCaraKawi_IPA" class="box-ipa">-</div>
             </div>
+            <div class="output-group">
+                <div class="output-label">PUJL</div>
+                <div id="outCaraKawi_PUJL" class="box-pujl">-</div>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="jgst.js"></script>
 <script src="ipa.js"></script>
+<script src="pujl.js"></script>
 
 <script>
     const Modules = { kbj: null, sriwedari: null, simplified: null, tradisional: null, carakawi: null };
@@ -258,9 +281,10 @@
         processTransliteration();
     }
 
+    // Fungsi pemproses JGST, IPA & PUJL dengan penanganan sandhi shift (ḷ, lě, ŕě)
     function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (!rawInput.trim() || !Modules[fnKey]) {
-            return { jgst: '-', ipa: '-' };
+            return { jgst: '-', ipa: '-', pujl: '-' };
         }
 
         const MARKER = '\uE000';
@@ -328,6 +352,7 @@
 
         let jgstList = [];
         let ipaList = [];
+        let pujlList = [];
         let wordCounter = 0;
 
         for (let i = 0; i < tokens.length; i++) {
@@ -335,21 +360,31 @@
             if (/^\s+$/.test(token)) {
                 jgstList.push(token);
                 ipaList.push(token);
+                pujlList.push(token);
             } else if (token !== '') {
                 let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
+                
                 let ipaKata = '-';
                 if (typeof convertJGSTtoIPA === 'function') {
                     ipaKata = convertJGSTtoIPA(jgstKata, token);
                 }
+
+                let pujlKata = '-';
+                if (typeof convertJGSTtoPUJL === 'function') {
+                    pujlKata = convertJGSTtoPUJL(jgstKata, token);
+                }
+
                 jgstList.push(jgstKata);
                 ipaList.push(ipaKata);
+                pujlList.push(pujlKata);
                 wordCounter++;
             }
         }
 
         return {
             jgst: jgstList.join(''),
-            ipa: ipaList.join('')
+            ipa: ipaList.join(''),
+            pujl: pujlList.join('')
         };
     }
 
@@ -357,9 +392,13 @@
         const outAksara = document.getElementById(`out${moduleId}_Aksara`);
         const outJGST = document.getElementById(`out${moduleId}_JGST`);
         const outIPA = document.getElementById(`out${moduleId}_IPA`);
+        const outPUJL = document.getElementById(`out${moduleId}_PUJL`);
 
         if (!rawInput.trim() || !Modules[fnKey]) {
-            outAksara.textContent = '-'; outJGST.textContent = '-'; outIPA.textContent = '-';
+            outAksara.textContent = '-'; 
+            outJGST.textContent = '-'; 
+            outIPA.textContent = '-';
+            if (outPUJL) outPUJL.textContent = '-';
             return;
         }
 
@@ -408,6 +447,7 @@
         const resultShifted = generateJGSTAndIPAShifted(formattedInput, fnKey, isSastraLampah);
         outJGST.textContent = resultShifted.jgst;
         outIPA.textContent = resultShifted.ipa;
+        if (outPUJL) outPUJL.textContent = resultShifted.pujl;
     }
 
     function processTransliteration() {
