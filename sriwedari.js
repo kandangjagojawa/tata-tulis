@@ -600,13 +600,21 @@ function transliterasiSingleKata(rawLatin) {
     if (!isPrefixException) {
         latinProcessed = latinProcessed.replace(/^(dak|tak|kok|ko|di|ka|ke)([aiueoéèê])/i, function(match, p1, p2) {
             let p1Lower = p1.toLowerCase();
-            if (p1Lower === 'ko' || p1Lower === 'di' || p1Lower === 'ka' || p1Lower === 'ke') {
+            if (p1Lower === 'di') {
+                if (p2.toLowerCase() === 'i') {
+                    return p1 + 'hx' + p2;
+                } else {
+                    return p1 + 'y' + p2;
+                }
+            } else if (p1Lower === 'ko' || p1Lower === 'ka' || p1Lower === 'ke') {
                 return p1 + 'hx' + p2;
             } else {
                 return p1.slice(0, -1) + 'kxhx' + p2;
             }
         });
     }
+
+    latinProcessed = latinProcessed.replace(/^(di)-([iI])/i, '$1hx$2');
 
     let prevLatin = "";
     while (latinProcessed !== prevLatin) {
