@@ -40,7 +40,11 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
 
             if (isVowelEnd) {
                 if (lastChar === 'a') {
-                    if (!/ana$/i.test(str)) {
+                    // Deteksi apakah input Latin secara eksplisit menggunakan tanda hubung untuk panambang -ana (misal: tulis-ana)
+                    const isExplicitPanambangAna = rawLatinToken && /-[a-zA-Z]*ana$/i.test(rawLatinToken);
+
+                    // Konversi vokal penult a -> ɔ jika BUKAN panambang -ana berpola tanda hubung
+                    if (!/ana$/i.test(str) || !isExplicitPanambangAna) {
                         str = str.replace(new RegExp(`(${consPattern}*a)(${consPattern}+a)$`, 'i'), function(match, penult, ult) {
                             return penult.replace(/a/g, 'ɔ') + ult;
                         });
