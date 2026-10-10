@@ -1,7 +1,6 @@
 /**
  * jgst.js
  * Transliterasi Aksara Jawa Unicode ke JGST
- * Mampu menerima teks Aksara Jawa utuh + referensi kata Latin untuk penyisipan spasi
  */
 
 const jgstMap = {
@@ -36,19 +35,20 @@ const sandhanganMap = {
   '\uA9BE': 'ỿa', '\uA9BF': 'ŕa'
 };
 
-function transliterateToJGST(text, latinRef = "") {
+function transliterateToJGST(text) {
   if (!text) return "";
   
+  // Bersihkan karakter kontrol Zero-Width
   text = text.replace(/[\u200C\u200D]/g, '');
 
-  let rawSegments = [];
+  let result = "";
   let i = 0;
 
   while (i < text.length) {
     let char1 = text[i];
 
     if (!/[\uA980-\uA9DF]/.test(char1)) {
-      rawSegments.push(char1);
+      result += char1;
       i++;
       continue;
     }
@@ -75,6 +75,7 @@ function transliterateToJGST(text, latinRef = "") {
         let next2 = i + 1 < text.length ? text.substring(i, i + 2) : "";
         let next1 = text[i];
 
+        // 1. Cakra Keret (\uA9BD)
         if (next1 === '\uA9BD') {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += 'ŕě';
@@ -82,6 +83,7 @@ function transliterateToJGST(text, latinRef = "") {
           continue;
         }
 
+        // 2. Pangkon (\uA9C0) -> Hanya berikan '/' jika berada di akhir/visual
         if (next1 === '\uA9C0') {
           let charNext = i + 1 < text.length ? text[i + 1] : "";
           let isVisualPangkon = !charNext || !/[\uA980-\uA9DF]/.test(charNext);
@@ -94,6 +96,7 @@ function transliterateToJGST(text, latinRef = "") {
           continue;
         }
 
+        // 3. Sandhangan Lainnya
         if (sandhanganMap[next2] !== undefined) {
           if (baseText.endsWith('a')) baseText = baseText.slice(0, -1);
           baseText += sandhanganMap[next2];
@@ -106,59 +109,13 @@ function transliterateToJGST(text, latinRef = "") {
           break;
         }
       }
-      rawSegments.push(baseText);
+      result += baseText;
     } else {
-      rawSegments.push(char1);
+      result += char1;
       i++;
     }
   }
-
-  let fullJgst = rawSegments.join('');
-
-  // Jika tidak ada acuan Latin atau tidak ada spasi di input Latin, kembalikan langsung
-  if (!latinRef || !/\s/.test(latinRef)) {
-    return fullJgst;
-  }
-
-  // PENYISIPAN SPASI CERDAS BERDASARKAN KATA LATIN
-  const latinWords = latinRef.trim().split(/\s+/);
-  if (latinWords.length <= 1) return fullJgst;
-
-  let formattedResult = "";
-  let currentIdx = 0;
-
-  for (let w = 0; w < latinWords.length; w++) {
-    let word = latinWords[w];
-    let wordLen = word.length;
-
-    // Hitung perkiraan panjang karakter JGST untuk kata ini
-    let targetEnd = currentIdx;
-    let charAccumulator = 0;
-
-    while (targetEnd < fullJgst.length && charAccumulator < wordLen) {
-      targetEnd++;
-      charAccumulator++;
-    }
-
-    // Jika kata berikutnya diawali cakra/pasangan di JGST (misal 'ŕě')
-    if (w < latinWords.length - 1 && fullJgst.substring(targetEnd, targetEnd + 2) === 'ŕě') {
-      targetEnd += 2;
-    }
-
-    let segment = fullJgst.substring(currentIdx, targetEnd);
-    formattedResult += segment;
-    currentIdx = targetEnd;
-
-    if (w < latinWords.length - 1 && currentIdx < fullJgst.length) {
-      formattedResult += " ";
-    }
-  }
-
-  if (currentIdx < fullJgst.length) {
-    formattedResult += fullJgst.substring(currentIdx);
-  }
-
-  return formattedResult;
+  return result;
 }
 
 if (typeof window !== 'undefined') window.transliterateToJGST = transliterateToJGST;
