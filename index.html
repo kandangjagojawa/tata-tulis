@@ -29,6 +29,47 @@
 
         .input-section { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
         
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .input-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .card-toggles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 0.9rem;
+            align-items: center;
+        }
+        .toggle-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .card-toggle-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+            color: #334155;
+        }
+        .card-toggle-item input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: var(--primary);
+            width: 15px;
+            height: 15px;
+        }
+
         .textarea-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         textarea { 
             width: 100%; 
@@ -113,7 +154,17 @@
     <h1>Membandingkan Tata Tulis Aksara Jawa</h1>
 
     <div class="input-section">
-        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Huruf Latin</label>
+        <div class="input-header">
+            <span class="input-title">Huruf Latin</span>
+            <div class="card-toggles">
+                <span class="toggle-label">Tampilkan:</span>
+                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="KBJ" checked> 1. KBJ</label>
+                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Sriwedari" checked> 2. Sriwedari</label>
+                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Simplified" checked> 3. KAJ Simplified</label>
+                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="Tradisional" checked> 4. KAJ Tradisional</label>
+                <label class="card-toggle-item"><input type="checkbox" class="toggle-card" data-card="CaraKawi" checked> 5. Cara Kawi</label>
+            </div>
+        </div>
         
         <div class="textarea-wrapper">
             <textarea id="inputLatin" 
@@ -139,7 +190,7 @@
 
     <div class="grid-container">
         <!-- 1. KBJ -->
-        <div class="card">
+        <div class="card" id="cardKBJ">
             <div class="card-header">1. KBJ</div>
             <div class="output-group">
                 <div class="output-label">Aksara Jawa</div>
@@ -160,7 +211,7 @@
         </div>
 
         <!-- 2. Sriwedari -->
-        <div class="card">
+        <div class="card" id="cardSriwedari">
             <div class="card-header">2. Sriwedari</div>
             <div class="output-group">
                 <div class="output-label">Aksara Jawa</div>
@@ -181,7 +232,7 @@
         </div>
 
         <!-- 3. KAJ Simplified -->
-        <div class="card">
+        <div class="card" id="cardSimplified">
             <div class="card-header">3. KAJ Simplified</div>
             <div class="output-group">
                 <div class="output-label">Aksara Jawa</div>
@@ -202,7 +253,7 @@
         </div>
 
         <!-- 4. KAJ Tradisional -->
-        <div class="card">
+        <div class="card" id="cardTradisional">
             <div class="card-header">4. KAJ Tradisional</div>
             <div class="output-group">
                 <div class="output-label">Aksara Jawa</div>
@@ -223,7 +274,7 @@
         </div>
 
         <!-- 5. Cara Kawi -->
-        <div class="card">
+        <div class="card" id="cardCaraKawi">
             <div class="card-header">5. Cara Kawi (Mardi Kawi)</div>
             <div class="output-group">
                 <div class="output-label">Aksara Jawa</div>
@@ -495,6 +546,17 @@
         processCardOutput('Tradisional', 'tradisional', input, true, false);
         processCardOutput('CaraKawi', 'carakawi', input, true, true);
     }
+
+    // Inisialisasi kontrol tampil/sembunyi kartu hasil centang
+    document.querySelectorAll('.toggle-card').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            const cardId = 'card' + e.target.dataset.card;
+            const cardEl = document.getElementById(cardId);
+            if (cardEl) {
+                cardEl.style.display = e.target.checked ? '' : 'none';
+            }
+        });
+    });
 
     document.getElementById('btnClear').addEventListener('click', () => {
         const inputLatin = document.getElementById('inputLatin');
