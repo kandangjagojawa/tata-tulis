@@ -274,7 +274,7 @@
             formattedInput = rawInput.replace(/e'/g, 'é').replace(/E'/g, 'É');
         }
 
-        // 1. Aksara Jawa Utuh Tanpa Spasi (Scripto Continua)
+        // 1. Aksara Jawa Utuh (Scripto Continua tanpa spasi)
         const rawAksaraUtuh = Modules[fnKey](formattedInput);
         let aksaraUtuhDisplay = rawAksaraUtuh;
         let warningText = "";
@@ -313,10 +313,11 @@
 
         outAksara.innerHTML = aksaraUtuhDisplay + warningText;
 
-        // 2. JGST Ber-Spasi (Membaca Aksara Jawa Utuh + Teks Latin Pemisah)
+        // 2. JGST Ber-Spasi Presisi Kata
         let jgstText = '-';
         if (typeof transliterateToJGST === 'function') {
-            jgstText = transliterateToJGST(rawAksaraUtuh, formattedInput);
+            // Kita proses JGST per kata Latin dengan memanggil fungsi modul transliterasi
+            jgstText = transliterateToJGSTWithContext(formattedInput, Modules[fnKey]);
         }
 
         if (isSastraLampah && /^h[aāiīuūěéèeoꜽꜷṛḷ]/i.test(jgstText)) {
@@ -330,6 +331,43 @@
 
         outJGST.textContent = jgstText;
         outIPA.textContent = ipaText;
+    }
+
+    // Fungsi Pembantu Transliterasi JGST Berkonteks Kata
+    function transliterateToJGSTWithContext(fullLatin, transliterateFn) {
+        const tokens = fullLatin.split(/(\s+)/);
+        let jgstParts = [];
+
+        for (let i = 0; i < tokens.length; i++) {
+            let token = tokens[i];
+            if (/^\s+$/.test(token)) {
+                jgstParts.push(token);
+            } else if (token !== '') {
+                // Untuk menangani sandhi lintas kata (seperti 'ketiban reged'):
+                // Kita cek kata berikutnya
+                let nextToken = (i + 2 < tokens.length && /^\s+$/.test(tokens[i+1])) ? tokens[i+2] : "";
+                
+                let combinedLatin = nextToken ? (token + " " + nextToken) : token;
+                let combinedAksara = transliterateFn(combinedLatin);
+
+                let jgstCombined = transliterateToJGST(combinedAksara);
+
+                if (nextToken) {
+                    // Jika ada kata berikutnya, kita ambil bagian JGST milik kata pertama
+                    // Memisahkan secara alami pada batas kata
+                    let jgstFirst = transliterateToJGST(transliterateFn(token));
+                    // Bersihkan pangkon palsu di tengah jika kata bergabung
+                    if (jgstCombined.startsWith(jgstFirst.replace(/\/$/, ''))) {
+                        jgstParts.push(jgstFirst.replace(/\/$/, ''));
+                    } else {
+                        jgstParts.push(jgstFirst.replace(/\/$/, ''));
+                    }
+                } else {
+                    jgstParts.push(jgstCombined);
+                }
+            }
+        }
+        return jgstParts.join('');
     }
 
     function processTransliteration() {
