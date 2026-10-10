@@ -60,6 +60,13 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken) {
                 if (/ɔ[^aeiouɔɛɪʊ]*$/.test(str)) str = str.replace(/o/g, 'ɔ');
                 if (/ɛ[^aeiouɔɛɪʊ]*$/.test(str)) str = str.replace(/[éèe]/g, 'ɛ');
             }
+
+            // Aturan Khusus Vokal Taling Tarung (o) Miring (ɔ)
+            const consPattern = '[bcdfghjklmnpqrstvwxyzñṅṇṭḍcjywśṣḥqxfvzŕ]';
+            // a. Di depan suku kata terakhir vokal terbuka 'i' atau 'u' (kopi -> kɔpi, wolu -> wɔlu)
+            str = str.replace(new RegExp(`o(${consPattern}+[iu])$`, 'i'), 'ɔ$1');
+            // b. Di depan suku kata terakhir tertutup bersandhangan pepet (horeg -> hɔreg, bosen -> bɔsen)
+            str = str.replace(new RegExp(`o(${consPattern}+[ěeə]${consPattern}+)$`, 'i'), 'ɔ$1');
         }
 
         // 3. Aturan Khusus Vokal E-Miring (ɛ) Berimbuhan & Miring Ganda
