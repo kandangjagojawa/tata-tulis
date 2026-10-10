@@ -44,7 +44,7 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             { pattern: /ꜽ/g, replace: 'ai' },
             { pattern: /ꜷ/g, replace: 'au' },
             { pattern: /ñ/g, replace: 'ny' },
-            { pattern: /ṅ/g, replace: 'ng' },
+            { pattern: /[ṅŋ]/g, replace: 'ng' }, // Menyerap Aksara Nga (ṅ) dan Cecak (ŋ)
             { pattern: /ṇ/g, replace: 'n' },
             { pattern: /ṭha/g, replace: 'tha' },
             { pattern: /ṭ/g, replace: 'th' },
@@ -60,6 +60,8 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             { pattern: /j̣/g, replace: 'j' },
             { pattern: /p̣/g, replace: 'p' },
             { pattern: /ḅ/g, replace: 'b' },
+            { pattern: /[õö]/g, replace: 'o' },
+            { pattern: /ã/g, replace: 'a' },
             { pattern: /‘/g, replace: '' }
         ];
 
@@ -67,7 +69,7 @@ function convertJGSTtoPUJL(jgstStr, rawLatinToken) {
             str = str.replace(item.pattern, item.replace);
         });
 
-        // 5. Degeminasi konsonan majemuk ganda setelah penyederhanaan (misal: thth -> th, dhdh -> dh, ngng -> ng, nyny -> ny)
+        // 5. Degeminasi konsonan majemuk ganda setelah penyederhanaan
         str = str.replace(/(th|dh|ng|ny)\1+/g, '$1');
         str = str.replace(/([bcdfghjklmnpqrstvwxyz])\1+/g, '$1');
 
