@@ -281,16 +281,22 @@
         processTransliteration();
     }
 
-    // Fungsi penetral taling tarung palsu JGST khusus modul Sriwedari untuk umpan ke IPA & PUJL
+    // Fungsi penetral khusus modul Sriwedari untuk umpan IPA & PUJL
     function netralkanSriwedariJGST(jgstStr, rawLatin) {
         if (!jgstStr || !rawLatin) return jgstStr;
         let rawLower = rawLatin.toLowerCase();
+        let res = jgstStr;
         
-        // Netralkan vokal 'o' pada JGST kembali ke 'a' jika vokal Latin aslinya adalah 'a' (tanpa vokal 'o' asli)
-        if (/o/i.test(jgstStr) && /a/i.test(rawLower) && !/o/i.test(rawLower)) {
-            return jgstStr.replace(/o/g, 'a').replace(/O/g, 'A');
+        // 1. Netralkan vokal 'o' taling tarung palsu kembali ke 'a' jika vokal Latin aslinya adalah 'a'
+        if (/o/i.test(res) && /a/i.test(rawLower) && !/o/i.test(rawLower)) {
+            res = res.replace(/o/g, 'a').replace(/O/g, 'A');
         }
-        return jgstStr;
+
+        // 2. Netralkan ñc dan ñj kembali ke nc dan nj (agar PUJL/IPA menghasilkan nc dan nj, bukan nyc/nyj)
+        res = res.replace(/ñc/g, 'nc').replace(/Ñc/g, 'Nc')
+                 .replace(/ñj/g, 'nj').replace(/Ñj/g, 'Nj');
+
+        return res;
     }
 
     // Fungsi pemproses JGST, IPA & PUJL dengan penanganan sandhi shift (ḷ, lě, ŕě)
@@ -376,7 +382,7 @@
             } else if (token !== '') {
                 let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
                 
-                // Khusus Sriwedari: Netralkan JGST untuk umpan IPA & PUJL agar tidak ada taling tarung palsu
+                // Khusus Sriwedari: Netralkan JGST untuk umpan IPA & PUJL
                 let jgstForIPAAndPUJL = jgstKata;
                 if (fnKey === 'sriwedari') {
                     jgstForIPAAndPUJL = netralkanSriwedariJGST(jgstKata, token);
