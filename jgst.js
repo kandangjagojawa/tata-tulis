@@ -1,13 +1,14 @@
 /**
  * jgst.js
  * Transliterasi Aksara Jawa Unicode ke JGST
+ * Penyesuaian: Nga Lelet (ꦊ) ditransliterasikan menjadi 'ḷ' (bukan 'lě').
  */
 
 const jgstMap = {
   '\uA980': 'ṃ', '\uA981': 'ŋ', '\uA982': 'ṙ', '\uA983': 'ḥ',
   '\uA984\uA9B4': 'ā', '\uA984': 'a', '\uA985': 'i', '\uA986': 'i', '\uA987': 'ī',
-  '\uA988\uA9B4': 'ū', '\uA988': 'u', '\uA989\uA9B4': 'ṛě', '\uA989': 'ṛ',
-  '\uA98A': 'lě', '\uA98B': 'lěö', '\uA98C': 'é', '\uA98D': 'ꜽ', '\uA98E\uA9B4': 'ꜷ', '\uA98E': 'o',
+  '\uA988\uA9B4': 'ū', '\uA988': 'u', '\uA989\uA9B4': 'ṝ', '\uA989': 'ṛ',
+  '\uA98A': 'ḷ', '\uA98B': 'ḹ', '\uA98C': 'é', '\uA98D': 'ꜽ', '\uA98E\uA9B4': 'ꜷ', '\uA98E': 'o',
   '\uA98F': 'ka', '\uA990': 'qa', '\uA991': 'ḳa', '\uA992': 'ga', '\uA993': 'g̣a',
   '\uA994': 'ṅa', '\uA995': 'ca', '\uA996': 'c̣a', '\uA997': 'ja', '\uA998': 'jña',
   '\uA999': 'j̣a', '\uA99A': 'ña', '\uA99B': 'ṭa', '\uA99C': 'ṭha', '\uA99D': 'ḍa',
