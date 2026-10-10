@@ -1,7 +1,9 @@
 /**
  * TRADISIONAL.JS
  * Modifikasi dari carakawi.js dengan penambahan Aksara Rekan lengkap.
- * Perbaikan: Konsonan r mati di akhir kata & tengah kata konsisten menggunakan Layar (ꦂ).
+ * Penyesuaian Nga Lelet (ꦊ):
+ * - Di dalam satu kata (kluster mlebu/klebu): menggunakan pasangan la + pepet (꧀ꦭꦼ).
+ * - Lintas kata disusul kata le- (mangan lebu): menggunakan pasangan Nga Lelet (꧀ꦊ).
  */
 
 const textInput = document.getElementById('textInput');
@@ -351,7 +353,7 @@ function transliterateKawi(rawText) {
                         let afterLIdx = nextIdx + nextConsTemp2.len;
                         let lVowel = matchVowel(word, afterLIdx);
                         if (lVowel && (lVowel.val === 'e' || lVowel.val === 'E')) {
-                            // Nga lelet setelah konsonan mati berubah menjadi la + pepet (꧀ꦭꦼ)
+                            // Di DALAM satu kata (mlebu/klebu), gunakan pasangan la + pepet (꧀ꦭꦼ)
                             result += consChar + '꧀ꦭꦼ';
                             i = afterLIdx + lVowel.len;
                             lastConsKey = 'l';
@@ -445,12 +447,9 @@ function transliterateKawi(rawText) {
                     continue;
                 }
 
-                // --- PENANGANAN KHUSUS KONSONAN R ---
                 if (cons.key === 'r') {
                     if (!isWordEnd) {
-                        // Layar (ꦂ) pada suku kata yang dimatikan di tengah kata
                         result += 'ꦂ';
-                        
                         let nextConsTemp = matchConsonant(word, peekIdx);
 
                         if (nextConsTemp) {
@@ -466,7 +465,6 @@ function transliterateKawi(rawText) {
 
                             let doubleIt = true;
                             
-                            // Pengecualian: TIDAK dirangkap jika disusul ha, nga, nya
                             if (['h', 'H', 'ng', 'NG', 'ny', 'NY', 'Ny'].includes(nextConsTemp.key)) {
                                 doubleIt = false;
                             }
@@ -518,7 +516,6 @@ function transliterateKawi(rawText) {
                             nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                             lastConsIsMati = false;
                         } else {
-                            // Layar (ꦂ) untuk r mati di akhir kata
                             result += 'ꦂ';
                             lastConsIsMati = true;
                         }
@@ -536,8 +533,9 @@ function transliterateKawi(rawText) {
                 } else {
                     let handledCrossWord = false;
 
+                    // LINTAS KATA: Jika kata berikutnya diawali 'le' (seperti 'mangan lebu'), gunakan Pasangan Nga Lelet (꧀ꦊ)
                     if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                        result += consChar + '꧀ꦭꦼ';
+                        result += consChar + '꧀ꦊ';
                         nextWordToken.val = nextWordToken.val.substr(2);
                         handledCrossWord = true;
                         lastConsKey = 'l';
