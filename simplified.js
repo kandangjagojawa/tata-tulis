@@ -442,15 +442,6 @@ function transliterasiKalimat(teks) {
 
 function transliterasiKata(rawLatin) {
     if (!rawLatin) return "";
-    if (/[a-zA-Z]/i.test(rawLatin) && /(nc|nj)/i.test(rawLatin) && !/^\(/.test(rawLatin)) {
-        let mainRes = transliterasiSingleKata(rawLatin);
-        let altLatin = rawLatin.replace(/nc/gi, 'nyc').replace(/nj/gi, 'nyj');
-        let altRes = transliterasiSingleKata(altLatin);
-        
-        if (mainRes !== altRes) {
-            return `${mainRes} (${altRes})`;
-        }
-    }
     return transliterasiSingleKata(rawLatin);
 }
 
