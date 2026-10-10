@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membandingkan Tata Tulis Aksara Jawa</title>
     
-    <!-- Google Font Gentium Plus untuk JGST & IPA -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -73,7 +72,7 @@
             border: 1px solid var(--border);
         }
         .control-group { display: flex; flex-direction: column; gap: 5px; }
-        .control-group label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; justify-space-between; }
+        .control-group label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; justify-content: space-between; }
         .control-group input[type="range"] { width: 100%; cursor: pointer; }
 
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
@@ -259,7 +258,6 @@
         processTransliteration();
     }
 
-    // Fungsi pemroses JGST & IPA dengan penanganan sandhi shift (ḷ, lě, ŕě)
     function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (!rawInput.trim() || !Modules[fnKey]) {
             return { jgst: '-', ipa: '-' };
