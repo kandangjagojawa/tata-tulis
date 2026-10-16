@@ -323,9 +323,9 @@ function transliterasiSingleKata(rawLatin) {
             c = 'ny'; jump = 2; isMurda = true;
         } else if (c1_raw === 'J' && AKSARA_MURDA['j']) {
             c = 'j'; jump = 1; isMurda = true;
-        } else if (['ngx'].includes(c3)) {
+        } else if (['ngx', 'xng', 'shh', 'xsy', 'tth'].includes(c3)) {
             c = c3; jump = 3;
-        } else if (['ng','ny','dh','th','nx','kh','dz','gh','kx','rx','hx','sy','sh'].includes(c2)) {
+        } else if (['ng','ny','dh','th','nx','kh','dz','gh','kx','rx','hx','sy','sh','hh','ts','dl','zh'].includes(c2)) {
             c = c2; jump = 2;
         } else if (KAMUS_AKSARA[c1]) {
             c = c1; jump = 1;
