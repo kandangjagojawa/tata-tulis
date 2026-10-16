@@ -37,6 +37,25 @@ function runModuleTransliteration(fnKey, input) {
     return input;
 }
 
+function transliterateWithLatinProtection(fnKey, input) {
+    if (!input) return '';
+    if (!input.includes('«')) {
+        return runModuleTransliteration(fnKey, input);
+    }
+    
+    const parts = input.split(/(«[^»]+»)/g);
+    let result = '';
+    for (let part of parts) {
+        if (part.startsWith('«') && part.endsWith('»')) {
+            let inner = part.slice(1, -1);
+            result += `<span class="font-gentium">${inner}</span>`;
+        } else if (part) {
+            result += runModuleTransliteration(fnKey, part);
+        }
+    }
+    return result;
+}
+
 function netralkanJGSTForPUJL(jgstStr, rawLatin, fnKey) {
     if (!jgstStr || !rawLatin) return jgstStr;
     let rawLower = rawLatin.toLowerCase();
@@ -73,7 +92,8 @@ function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (/^\s+$/.test(t)) {
             markedInput += t;
         } else if (t !== '') {
-            markedInput += t + MARKER;
+            let cleanTokenForEngine = t.replace(/«([^»]+)»/g, '$1');
+            markedInput += cleanTokenForEngine + MARKER;
             wordTokens.push(t);
         }
     }
@@ -163,24 +183,35 @@ function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
             ipaList.push(token);
             pujlList.push(token);
         } else if (token !== '') {
-            let jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
-            let jgstForIPAAndPUJL = netralkanJGSTForPUJL(jgstKata, token, fnKey);
+            let jgstKata = '';
+            let ipaKata = '';
+            let pujlKata = '';
 
-            let ipaKata = '-';
-            if (typeof convertJGSTtoIPA === 'function') {
-                ipaKata = convertJGSTtoIPA(jgstForIPAAndPUJL, token, fnKey);
-                if (ipaKata && ipaKata !== '-') {
-                    ipaKata = ipaKata.replace(/tɔnpɔ/g, 'tanpɔ');
+            if (/«[^»]+»/.test(token)) {
+                let cleanLatin = token.replace(/«([^»]+)»/g, '$1');
+                jgstKata = cleanLatin;
+                ipaKata = cleanLatin;
+                pujlKata = cleanLatin;
+            } else {
+                jgstKata = cleanedJgstSegments[wordCounter] !== undefined ? cleanedJgstSegments[wordCounter] : token;
+                let jgstForIPAAndPUJL = netralkanJGSTForPUJL(jgstKata, token, fnKey);
+
+                ipaKata = '-';
+                if (typeof convertJGSTtoIPA === 'function') {
+                    ipaKata = convertJGSTtoIPA(jgstForIPAAndPUJL, token, fnKey);
+                    if (ipaKata && ipaKata !== '-') {
+                        ipaKata = ipaKata.replace(/tɔnpɔ/g, 'tanpɔ');
+                    }
                 }
-            }
 
-            let pujlKata = '-';
-            if (typeof convertJGSTtoPUJL === 'function') {
-                pujlKata = convertJGSTtoPUJL(jgstForIPAAndPUJL, token);
-            }
+                pujlKata = '-';
+                if (typeof convertJGSTtoPUJL === 'function') {
+                    pujlKata = convertJGSTtoPUJL(jgstForIPAAndPUJL, token);
+                }
 
-            if (pujlKata && pujlKata !== '-') {
-                pujlKata = pujlKata.replace(/\s*\([^)]*\)/g, '').replace(/nyc/gi, 'nc').replace(/nyj/gi, 'nj').trim();
+                if (pujlKata && pujlKata !== '-') {
+                    pujlKata = pujlKata.replace(/\s*\([^)]*\)/g, '').replace(/nyc/gi, 'nc').replace(/nyj/gi, 'nj').trim();
+                }
             }
 
             jgstList.push(jgstKata);
@@ -233,16 +264,17 @@ function processCardOutput(moduleId, fnKey, rawInput, isSastraLampah = false, ch
         formattedInput = formattedInput.replace(/e'/g, 'é').replace(/E'/g, 'É');
     }
 
-    let aksaraUtuh = runModuleTransliteration(fnKey, formattedInput);
+    let aksaraUtuh = transliterateWithLatinProtection(fnKey, formattedInput);
     let warningText = "";
 
     if (checkRekanKhusus) {
+        let cleanInputForRekan = formattedInput.replace(/«[^»]+»/g, '');
         let detectedAksaraJawa = [];
         let keys = Object.keys(REKAN_KHUSUS_MAP).sort((a, b) => b.length - a.length);
 
         keys.forEach(key => {
             let regex = new RegExp(`\\b${key}\\b|${key}`, 'gi');
-            if (regex.test(formattedInput)) {
+            if (regex.test(cleanInputForRekan)) {
                 let aksaraSymbol = REKAN_KHUSUS_MAP[key];
                 if (!detectedAksaraJawa.includes(aksaraSymbol)) {
                     detectedAksaraJawa.push(aksaraSymbol);
@@ -674,7 +706,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const OPSI_ENGINE_MAP = {
         'kbj': [
             { val: 'murda', label: '1. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '2. Semua Aksara biasa tanpa sandhangan' }
+            { val: 'biasa', label: '2. Semua Aksara biasa tanpa sandhangan' },
+            { val: 'latin', label: '3. Tetap ditulis huruf Latin (Font Gentium Plus)' }
         ],
         'sriwedari': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
@@ -683,15 +716,18 @@ window.addEventListener('DOMContentLoaded', () => {
         'simplified': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
             { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' }
+            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' },
+            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
         ],
         'tradisional': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
             { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' }
+            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' },
+            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
         ],
         'carakawi': [
-            { val: 'biasa', label: '1. Semua Aksara biasa (tanpa Aksara Murda & sandhangan)' }
+            { val: 'biasa', label: '1. Semua Aksara biasa (tanpa Aksara Murda & sandhangan)' },
+            { val: 'latin', label: '2. Tetap ditulis huruf Latin (Font Gentium Plus)' }
         ],
         'praktis': [
             { val: 'biasa', label: '1. Semua Aksara biasa tanpa sandhangan' },
