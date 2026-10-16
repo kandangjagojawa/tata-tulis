@@ -14,8 +14,8 @@ const EngineConfigs = {
 
 const OPSI_ENGINE_MAP = {
     'kbj': [
-        { val: 'murda_rekan', label: 'Pilihan 1' },
-        { val: 'biasa_rekan', label: 'Pilihan 2' }
+        { val: 'biasa_rekan', label: 'Pilihan 1' },
+        { val: 'murda_rekan', label: 'Pilihan 2' }
     ],
     'sriwedari': [
         { val: 'bunyi', label: 'Pilihan 1' },
@@ -23,21 +23,21 @@ const OPSI_ENGINE_MAP = {
     ],
     'simplified': [
         { val: 'bunyi', label: 'Pilihan 1' },
-        { val: 'murda_rekan', label: 'Pilihan 2' },
-        { val: 'biasa_rekan', label: 'Pilihan 3' }
+        { val: 'biasa_rekan', label: 'Pilihan 2' },
+        { val: 'murda_rekan', label: 'Pilihan 3' }
     ],
     'tradisional': [
         { val: 'bunyi', label: 'Pilihan 1' },
-        { val: 'murda_rekan', label: 'Pilihan 2' },
-        { val: 'biasa_rekan', label: 'Pilihan 3' }
+        { val: 'biasa_rekan', label: 'Pilihan 2' },
+        { val: 'murda_rekan', label: 'Pilihan 3' }
     ],
     'carakawi': [
         { val: 'kawi_biasa', label: 'Pilihan 1' }
     ],
     'praktis': [
         { val: 'bunyi', label: 'Pilihan 1' },
-        { val: 'murda_rekan', label: 'Pilihan 2' },
-        { val: 'biasa_rekan', label: 'Pilihan 3' },
+        { val: 'biasa_rekan', label: 'Pilihan 2' },
+        { val: 'murda_rekan', label: 'Pilihan 3' },
         { val: 'latin', label: 'Pilihan 4' }
     ]
 };
