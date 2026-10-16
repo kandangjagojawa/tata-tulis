@@ -705,9 +705,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const OPSI_ENGINE_MAP = {
         'kbj': [
-            { val: 'murda', label: '1. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '2. Semua Aksara biasa tanpa sandhangan' },
-            { val: 'latin', label: '3. Tetap ditulis huruf Latin (Font Gentium Plus)' }
+            { val: 'murda_rekan', label: '1. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
+            { val: 'biasa_rekan', label: '2. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
         ],
         'sriwedari': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
@@ -715,25 +714,22 @@ window.addEventListener('DOMContentLoaded', () => {
         ],
         'simplified': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' },
-            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
+            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
+            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
         ],
         'tradisional': [
             { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' },
-            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
+            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
+            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
         ],
         'carakawi': [
-            { val: 'biasa', label: '1. Semua Aksara biasa (tanpa Aksara Murda & sandhangan)' },
-            { val: 'latin', label: '2. Tetap ditulis huruf Latin (Font Gentium Plus)' }
+            { val: 'kawi_biasa', label: '1. Semua Aksara biasa, mahaprana, swara (tanpa Aksara Murda & Rekan)' }
         ],
         'praktis': [
-            { val: 'biasa', label: '1. Semua Aksara biasa tanpa sandhangan' },
-            { val: 'bunyi', label: '2. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda', label: '3. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
-            { val: 'latin', label: '4. Tetap ditulis huruf Latin' }
+            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
+            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
+            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' },
+            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
         ]
     };
 
@@ -787,6 +783,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (btnOpenSingkatan) {
         btnOpenSingkatan.addEventListener('click', () => {
             if (modalSingkatan) modalSingkatan.style.display = 'flex';
+            if (singkEngine) singkEngine.value = 'kbj';
             if (singkInput) singkInput.focus();
             muatOpsiSingkatan();
         });
