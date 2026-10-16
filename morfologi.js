@@ -210,6 +210,11 @@ function prosesDwipurwaSriwedari(ater, dasarRaw) {
 function prosesImbuhanSriwedari(ater, dasarRaw, panam) {
     if (!dasarRaw) return "";
     let dasar = dasarRaw.trim().replace(/e'/g, 'é').replace(/E'/g, 'É').toLowerCase();
+
+    if (panam === 'ake') panam = 'aké';
+    if (panam === 'ne') panam = 'né';
+    if (panam === 'e') panam = 'é';
+
     let f = dasar.charAt(0);
     let isVowelStart = /[aiueoéèê]/i.test(f);
 
@@ -348,37 +353,37 @@ function prosesImbuhanSriwedari(ater, dasarRaw, panam) {
                 else if (['e', 'é', 'è'].includes(rootVowel)) { body = stem; suffixMod = 'an'; }
                 else { body = stem; suffixMod = 'nan'; }
             } else if (rootVowel === 'a') {
-                if (['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                if (['ake', 'aké'].includes(panam)) suffixMod = 'kaké';
                 else if (panam === 'aken') suffixMod = 'kaken';
                 else if (panam === 'en') suffixMod = 'nen';
-                else if (['e', 'é'].includes(panam)) suffixMod = 'ne';
+                else if (['e', 'é'].includes(panam)) suffixMod = 'né';
                 else if (panam === 'ipun') suffixMod = 'nipun';
                 else suffixMod = panam;
             } else if (rootVowel === 'i') {
                 if (['e', 'é', 'ipun'].includes(panam)) {
-                    body = stem; suffixMod = (panam === 'ipun') ? 'nipun' : 'ne';
+                    body = stem; suffixMod = (panam === 'ipun') ? 'nipun' : 'né';
                 } else {
                     body = stem.slice(0, -1) + 'é';
-                    if (['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                    if (['ake', 'aké'].includes(panam)) suffixMod = 'kaké';
                     else if (panam === 'aken') suffixMod = 'kaken';
                     else if (panam === 'en') suffixMod = 'nen';
                     else suffixMod = panam;
                 }
             } else if (rootVowel === 'u') {
                 if (panam === 'ipun') { body = stem; suffixMod = 'nipun'; }
-                else if (['e', 'é'].includes(panam)) { body = stem; suffixMod = 'ne'; }
+                else if (['e', 'é'].includes(panam)) { body = stem; suffixMod = 'né'; }
                 else if (['ake', 'aké', 'aken', 'en'].includes(panam)) {
                     body = stem.slice(0, -1) + 'o';
-                    if (['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                    if (['ake', 'aké'].includes(panam)) suffixMod = 'kaké';
                     if (panam === 'aken') suffixMod = 'kaken';
                     if (panam === 'en') suffixMod = 'nen';
                 } else suffixMod = panam;
             } else if (['e', 'é', 'è'].includes(rootVowel)) {
                 body = stem;
-                if (['ake', 'aké'].includes(panam)) suffixMod = 'kake';
+                if (['ake', 'aké'].includes(panam)) suffixMod = 'kaké';
                 else if (panam === 'aken') suffixMod = 'kaken';
                 else if (panam === 'en') suffixMod = 'nen';
-                else if (['e', 'é'].includes(panam)) suffixMod = 'ne';
+                else if (['e', 'é'].includes(panam)) suffixMod = 'né';
                 else if (panam === 'ipun') suffixMod = 'nipun';
                 else suffixMod = panam;
             } else {
