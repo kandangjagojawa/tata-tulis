@@ -657,10 +657,141 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =========================================================================
+    // MODAL MENULIS SINGKATAN
+    // =========================================================================
+    const modalSingkatan = document.getElementById('modalSingkatan');
+    const btnOpenSingkatan = document.getElementById('btnOpenSingkatan');
+    const btnCloseSingkatan = document.getElementById('btnCloseSingkatan');
+    const singkInput = document.getElementById('singkInput');
+    const singkEngine = document.getElementById('singkEngine');
+    const singkOpsi = document.getElementById('singkOpsi');
+    const singkOutLatin = document.getElementById('singkOutLatin');
+    const singkOutAksara = document.getElementById('singkOutAksara');
+    const btnCopySingk = document.getElementById('btnCopySingk');
+    const btnUseSingk = document.getElementById('btnUseSingk');
+
+    const OPSI_ENGINE_MAP = {
+        'kbj': [
+            { val: 'murda', label: '1. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
+            { val: 'biasa', label: '2. Semua Aksara biasa tanpa sandhangan' }
+        ],
+        'sriwedari': [
+            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
+            { val: 'latin', label: '2. Tetap ditulis huruf Latin (Font Gentium Plus)' }
+        ],
+        'simplified': [
+            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
+            { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
+            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' }
+        ],
+        'tradisional': [
+            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
+            { val: 'murda', label: '2. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
+            { val: 'biasa', label: '3. Semua Aksara biasa tanpa sandhangan' }
+        ],
+        'carakawi': [
+            { val: 'biasa', label: '1. Semua Aksara biasa (tanpa Aksara Murda & sandhangan)' }
+        ],
+        'praktis': [
+            { val: 'biasa', label: '1. Semua Aksara biasa tanpa sandhangan' },
+            { val: 'bunyi', label: '2. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
+            { val: 'murda', label: '3. Semua Aksara Murda (jika tidak ada Murda pakai Aksara biasa)' },
+            { val: 'latin', label: '4. Tetap ditulis huruf Latin' }
+        ]
+    };
+
+    function muatOpsiSingkatan() {
+        if (!singkEngine || !singkOpsi) return;
+        let engine = singkEngine.value;
+        let list = OPSI_ENGINE_MAP[engine] || [];
+
+        singkOpsi.innerHTML = '';
+        list.forEach(opt => {
+            let el = document.createElement('option');
+            el.value = opt.val;
+            el.textContent = opt.label;
+            singkOpsi.appendChild(el);
+        });
+        updateSingkatanModal();
+    }
+
+    function updateSingkatanModal() {
+        if (!singkInput || !singkOutLatin || !singkOutAksara) return;
+
+        let valClean = singkInput.value.toUpperCase().replace(/[^A-Z]/g, '');
+        singkInput.value = valClean;
+
+        if (!valClean) {
+            singkOutLatin.textContent = '-';
+            singkOutAksara.textContent = '-';
+            singkOutAksara.className = 'modal-aksara-out font-ngayogyann';
+            return;
+        }
+
+        let opsi = singkOpsi.value;
+        let engine = singkEngine.value;
+
+        singkOutLatin.textContent = valClean;
+
+        let hasil = typeof prosesSingkatan === 'function' 
+            ? prosesSingkatan(valClean, opsi) 
+            : valClean;
+
+        if (opsi === 'latin') {
+            singkOutAksara.textContent = hasil;
+            singkOutAksara.className = 'modal-aksara-out font-gentium';
+        } else {
+            let fontClass = (engine === 'tradisional' || engine === 'carakawi') ? 'font-ngayogyan' : 'font-ngayogyann';
+            singkOutAksara.textContent = hasil;
+            singkOutAksara.className = 'modal-aksara-out ' + fontClass;
+        }
+    }
+
+    if (btnOpenSingkatan) {
+        btnOpenSingkatan.addEventListener('click', () => {
+            if (modalSingkatan) modalSingkatan.style.display = 'flex';
+            if (singkInput) singkInput.focus();
+            muatOpsiSingkatan();
+        });
+    }
+    if (btnCloseSingkatan) {
+        btnCloseSingkatan.addEventListener('click', () => {
+            if (modalSingkatan) modalSingkatan.style.display = 'none';
+        });
+    }
+    if (singkEngine) singkEngine.addEventListener('change', muatOpsiSingkatan);
+    if (singkOpsi) singkOpsi.addEventListener('change', updateSingkatanModal);
+    if (singkInput) singkInput.addEventListener('input', updateSingkatanModal);
+
+    if (btnCopySingk) {
+        btnCopySingk.addEventListener('click', () => {
+            const txt = singkOutAksara ? singkOutAksara.textContent : '';
+            if (txt && txt !== '-') {
+                navigator.clipboard.writeText(txt).then(() => {
+                    let orig = btnCopySingk.textContent;
+                    btnCopySingk.textContent = 'Tersalin!';
+                    setTimeout(() => { btnCopySingk.textContent = orig; }, 1500);
+                });
+            }
+        });
+    }
+
+    if (btnUseSingk) {
+        btnUseSingk.addEventListener('click', () => {
+            const txt = singkOutAksara ? singkOutAksara.textContent : '';
+            if (txt && txt !== '-') {
+                tempelKeInputUtama(txt);
+                if (modalSingkatan) modalSingkatan.style.display = 'none';
+            }
+        });
+    }
+
     // Menutup Modal saat klik overlay
     window.addEventListener('click', (e) => {
         if (e.target === modalDwipurwa) modalDwipurwa.style.display = 'none';
         if (e.target === modalImbuhan) modalImbuhan.style.display = 'none';
+        if (e.target === modalSingkatan) modalSingkatan.style.display = 'none';
     });
 
     // Inisialisasi awal
