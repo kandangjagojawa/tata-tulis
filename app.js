@@ -12,6 +12,36 @@ const EngineConfigs = {
     'carakawi': { frameId: 'engineCaraKawi', src: 'carakawi.js', fnName: 'transliterateKawi' }
 };
 
+const OPSI_ENGINE_MAP = {
+    'kbj': [
+        { val: 'murda_rekan', label: 'Pilihan 1' },
+        { val: 'biasa_rekan', label: 'Pilihan 2' }
+    ],
+    'sriwedari': [
+        { val: 'bunyi', label: 'Pilihan 1' },
+        { val: 'latin', label: 'Pilihan 2' }
+    ],
+    'simplified': [
+        { val: 'bunyi', label: 'Pilihan 1' },
+        { val: 'murda_rekan', label: 'Pilihan 2' },
+        { val: 'biasa_rekan', label: 'Pilihan 3' }
+    ],
+    'tradisional': [
+        { val: 'bunyi', label: 'Pilihan 1' },
+        { val: 'murda_rekan', label: 'Pilihan 2' },
+        { val: 'biasa_rekan', label: 'Pilihan 3' }
+    ],
+    'carakawi': [
+        { val: 'kawi_biasa', label: 'Pilihan 1' }
+    ],
+    'praktis': [
+        { val: 'bunyi', label: 'Pilihan 1' },
+        { val: 'murda_rekan', label: 'Pilihan 2' },
+        { val: 'biasa_rekan', label: 'Pilihan 3' },
+        { val: 'latin', label: 'Pilihan 4' }
+    ]
+};
+
 function initEngineFrames() {
     Object.keys(EngineConfigs).forEach(key => {
         const config = EngineConfigs[key];
@@ -37,22 +67,64 @@ function runModuleTransliteration(fnKey, input) {
     return input;
 }
 
-function transliterateWithLatinProtection(fnKey, input) {
-    if (!input) return '';
-    if (!input.includes('«')) {
-        return runModuleTransliteration(fnKey, input);
+function getOptionValForEngine(engineKey, optNumOrVal) {
+    const list = OPSI_ENGINE_MAP[engineKey] || [];
+    if (!list.length) return 'bunyi';
+    
+    if (typeof optNumOrVal === 'number' || /^\d+$/.test(optNumOrVal)) {
+        const idx = parseInt(optNumOrVal, 10) - 1;
+        if (list[idx]) return list[idx].val;
+        return list[0].val;
     }
     
-    const parts = input.split(/(«[^»]+»)/g);
+    const found = list.find(item => item.val === optNumOrVal);
+    if (found) return found.val;
+    return list[0].val;
+}
+
+function renderSingkatanForCard(fnKey, rawSingk, targetEngine, optNumOrVal) {
+    let chosenVal = '';
+    if (targetEngine && fnKey === targetEngine) {
+        chosenVal = getOptionValForEngine(fnKey, optNumOrVal);
+    } else {
+        chosenVal = getOptionValForEngine(fnKey, 1);
+    }
+
+    if (chosenVal === 'latin') {
+        return `<span class="font-gentium">${rawSingk}</span>`;
+    }
+    if (typeof prosesSingkatan === 'function') {
+        return prosesSingkatan(rawSingk, chosenVal);
+    }
+    return rawSingk;
+}
+
+function transliterateWithLatinProtection(fnKey, input) {
+    if (!input) return '';
+    
+    const regex = /(«[^»]+»|\b[A-Z]{2,}\b)/g;
+    const parts = input.split(regex);
     let result = '';
+
     for (let part of parts) {
+        if (!part) continue;
+
         if (part.startsWith('«') && part.endsWith('»')) {
             let inner = part.slice(1, -1);
-            result += `<span class="font-gentium">${inner}</span>`;
-        } else if (part) {
+            if (inner.includes('|')) {
+                let [rawSingk, tagInfo] = inner.split('|');
+                let [targetEngine, optNum] = (tagInfo || '').split(':');
+                result += renderSingkatanForCard(fnKey, rawSingk, targetEngine, optNum);
+            } else {
+                result += `<span class="font-gentium">${inner}</span>`;
+            }
+        } else if (/^[A-Z]{2,}$/.test(part)) {
+            result += renderSingkatanForCard(fnKey, part, null, null);
+        } else {
             result += runModuleTransliteration(fnKey, part);
         }
     }
+
     return result;
 }
 
@@ -92,7 +164,7 @@ function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
         if (/^\s+$/.test(t)) {
             markedInput += t;
         } else if (t !== '') {
-            let cleanTokenForEngine = t.replace(/«([^»]+)»/g, '$1');
+            let cleanTokenForEngine = t.replace(/«([^»]+)»/g, '$1').replace(/\|.*/, '');
             markedInput += cleanTokenForEngine + MARKER;
             wordTokens.push(t);
         }
@@ -188,7 +260,7 @@ function generateJGSTAndIPAShifted(rawInput, fnKey, isSastraLampah = false) {
             let pujlKata = '';
 
             if (/«[^»]+»/.test(token)) {
-                let cleanLatin = token.replace(/«([^»]+)»/g, '$1');
+                let cleanLatin = token.replace(/«([^»]+)»/g, '$1').split('|')[0];
                 jgstKata = cleanLatin;
                 ipaKata = cleanLatin;
                 pujlKata = cleanLatin;
@@ -703,36 +775,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const btnCopySingk = document.getElementById('btnCopySingk');
     const btnUseSingk = document.getElementById('btnUseSingk');
 
-    const OPSI_ENGINE_MAP = {
-        'kbj': [
-            { val: 'murda_rekan', label: '1. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
-            { val: 'biasa_rekan', label: '2. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
-        ],
-        'sriwedari': [
-            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'latin', label: '2. Tetap ditulis huruf Latin (Font Gentium Plus)' }
-        ],
-        'simplified': [
-            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
-            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
-        ],
-        'tradisional': [
-            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
-            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' }
-        ],
-        'carakawi': [
-            { val: 'kawi_biasa', label: '1. Semua Aksara biasa, mahaprana, swara (tanpa Aksara Murda & Rekan)' }
-        ],
-        'praktis': [
-            { val: 'bunyi', label: '1. Mengikuti bunyi huruf (Aksara Swara + Konsonan + Pangkon)' },
-            { val: 'murda_rekan', label: '2. Semua Aksara Murda, Aksara Rekan, Aksara Swara' },
-            { val: 'biasa_rekan', label: '3. Semua Aksara Biasa, Aksara Rekan, Aksara Swara' },
-            { val: 'latin', label: '4. Tetap ditulis huruf Latin (Font Gentium Plus)' }
-        ]
-    };
-
     function muatOpsiSingkatan() {
         if (!singkEngine || !singkOpsi) return;
         let engine = singkEngine.value;
@@ -812,11 +854,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (btnUseSingk) {
         btnUseSingk.addEventListener('click', () => {
-            const txt = singkOutAksara ? singkOutAksara.textContent : '';
-            if (txt && txt !== '-') {
-                tempelKeInputUtama(txt);
-                if (modalSingkatan) modalSingkatan.style.display = 'none';
+            const valClean = singkInput ? singkInput.value.toUpperCase().replace(/[^A-Z]/g, '') : '';
+            if (!valClean) return;
+
+            const engine = singkEngine ? singkEngine.value : 'kbj';
+            const opsiVal = singkOpsi ? singkOpsi.value : '';
+            
+            const list = OPSI_ENGINE_MAP[engine] || [];
+            const optIdx = list.findIndex(item => item.val === opsiVal) + 1;
+            const optNum = optIdx > 0 ? optIdx : 1;
+
+            let textToInsert = '';
+            if (optNum === 1) {
+                textToInsert = valClean;
+            } else {
+                textToInsert = `«${valClean}|${engine}:${optNum}»`;
             }
+
+            tempelKeInputUtama(textToInsert);
+            if (modalSingkatan) modalSingkatan.style.display = 'none';
         });
     }
 
