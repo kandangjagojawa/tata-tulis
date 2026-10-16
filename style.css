@@ -416,3 +416,9 @@ textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 
 .btn-modal-use:hover {
     background-color: #15803d;
 }
+.font-gentium {
+    font-family: 'Gentium Plus', serif;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #0d9488;
+}
