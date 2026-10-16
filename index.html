@@ -25,6 +25,7 @@
         <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <button type="button" id="btnOpenDwipurwa" class="btn-petunjuk-latin" style="background-color: #0284c7; box-shadow: 0 3px 8px rgba(2, 132, 199, 0.4);">🌀 Membentuk Tembung Dwipurwa</button>
             <button type="button" id="btnOpenImbuhan" class="btn-petunjuk-latin" style="background-color: #0d9488; box-shadow: 0 3px 8px rgba(13, 148, 136, 0.4);">🧩 Memberi Imbuhan</button>
+            <button type="button" id="btnOpenSingkatan" class="btn-petunjuk-latin" style="background-color: #7c3aed; box-shadow: 0 3px 8px rgba(124, 58, 237, 0.4);">🔤 Menulis Singkatan</button>
             <a href="#petunjukLatin" class="btn-petunjuk-latin">📖 Petunjuk Penulisan Huruf Latin</a>
         </div>
     </div>
@@ -1611,6 +1612,57 @@
             <div class="modal-actions">
                 <button type="button" class="btn-modal-action btn-modal-copy" id="btnCopyImb">📋 Salin Latin</button>
                 <button type="button" class="btn-modal-action btn-modal-use" id="btnUseImb">🚀 Gunakan di Input Utama</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MENULIS SINGKATAN -->
+<div class="modal-overlay" id="modalSingkatan">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>🔤 Menulis Singkatan</span>
+            <button class="modal-close" id="btnCloseSingkatan">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group-custom">
+                    <label for="singkInput">Singkatan (Huruf Kapital Only):</label>
+                    <input type="text" id="singkInput" placeholder="Contoh: SD, UGM, GBPH, SMP..." autocomplete="off" spellcheck="false">
+                </div>
+                <div class="form-group-custom">
+                    <label for="singkEngine">Pilih Modul Transliterasi:</label>
+                    <select id="singkEngine">
+                        <option value="kbj">1. Paugeran KBJ</option>
+                        <option value="sriwedari" selected>2. Paugeran Sriwedari</option>
+                        <option value="simplified">3. KAJ Simplified</option>
+                        <option value="tradisional">4. KAJ Tradisional</option>
+                        <option value="carakawi">5. Cara Kawi (Mardi Kawi)</option>
+                        <option value="praktis">Aksara Jawa Praktis</option>
+                    </select>
+                </div>
+                <div class="form-group-custom" style="grid-column: 1 / -1;">
+                    <label for="singkOpsi">Opsi Penulisan Singkatan:</label>
+                    <select id="singkOpsi">
+                        <!-- Opsi akan diisi secara dinamis oleh JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-preview-card">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span class="modal-preview-label">Hasil Singkatan:</span>
+                    <div class="modal-latin-out" id="singkOutLatin">-</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span class="modal-preview-label">Pratinjau Hasil Aksara Jawa / Latin:</span>
+                    <div class="modal-aksara-out font-ngayogyann" id="singkOutAksara">-</div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-action btn-modal-copy" id="btnCopySingk">📋 Salin Teks</button>
+                <button type="button" class="btn-modal-action btn-modal-use" id="btnUseSingk">🚀 Gunakan di Input Utama</button>
             </div>
         </div>
     </div>
