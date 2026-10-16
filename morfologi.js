@@ -426,7 +426,7 @@ function prosesSingkatan(rawInput, opsi) {
     if (!clean) return "";
 
     if (opsi === 'latin') {
-        return clean;
+        return '«' + clean + '»';
     }
 
     let result = "";
