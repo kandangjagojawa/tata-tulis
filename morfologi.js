@@ -406,10 +406,24 @@ const MAP_SINGKATAN_BIASA = {
     'Y':'ꦪ', 'Z':'ꦗ'
 };
 
-const MAP_SINGKATAN_MURDA = {
-    'A':'ꦄ', 'B':'ꦨ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦦ', 'G':'ꦓ', 'H':'ꦲ',
+const MAP_SINGKATAN_BIASA_REKAN = {
+    'A':'ꦄ', 'B':'ꦧ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ꦳', 'G':'ꦒ', 'H':'ꦲ',
+    'I':'ꦆ', 'J':'ꦗ', 'K':'ꦏ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦤ', 'O':'ꦎ', 'P':'ꦥ',
+    'Q':'ꦏ꦳', 'R':'ꦫ', 'S':'ꦱ', 'T':'ꦠ', 'U':'ꦈ', 'V':'ꦮ꦳', 'W':'ꦮ', 'X':'ꦏ꦳',
+    'Y':'ꦪ', 'Z':'ꦗ꦳'
+};
+
+const MAP_SINGKATAN_MURDA_REKAN = {
+    'A':'ꦄ', 'B':'ꦨ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ꦳', 'G':'ꦓ', 'H':'ꦲ',
     'I':'ꦆ', 'J':'ꦗ', 'K':'ꦑ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦟ', 'O':'ꦎ', 'P':'ꦦ',
-    'Q':'ꦑ', 'R':'ꦫ', 'S':'ꦯ', 'T':'ꦡ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦑ',
+    'Q':'ꦑ꦳', 'R':'ꦫ', 'S':'ꦯ', 'T':'ꦡ', 'U':'ꦈ', 'V':'ꦮ꦳', 'W':'ꦮ', 'X':'ꦑ꦳',
+    'Y':'ꦪ', 'Z':'ꦗ꦳'
+};
+
+const MAP_SINGKATAN_KAWI = {
+    'A':'ꦄ', 'B':'ꦨ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ', 'G':'ꦓ', 'H':'ꦲ',
+    'I':'ꦆ', 'J':'ꦗ', 'K':'ꦑ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦟ', 'O':'ꦎ', 'P':'ꦦ',
+    'Q':'ꦏ', 'R':'ꦫ', 'S':'ꦱ', 'T':'ꦡ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦏ',
     'Y':'ꦪ', 'Z':'ꦗ'
 };
 
@@ -432,8 +446,12 @@ function prosesSingkatan(rawInput, opsi) {
     let result = "";
     for (let i = 0; i < clean.length; i++) {
         let char = clean[i];
-        if (opsi === 'murda') {
-            result += (MAP_SINGKATAN_MURDA[char] || char) + '꧈';
+        if (opsi === 'murda_rekan' || opsi === 'murda') {
+            result += (MAP_SINGKATAN_MURDA_REKAN[char] || char) + '꧈';
+        } else if (opsi === 'biasa_rekan') {
+            result += (MAP_SINGKATAN_BIASA_REKAN[char] || char) + '꧈';
+        } else if (opsi === 'kawi_biasa' || opsi === 'kawi') {
+            result += (MAP_SINGKATAN_KAWI[char] || char) + '꧈';
         } else if (opsi === 'bunyi') {
             result += (MAP_SINGKATAN_BUNYI[char] || char) + '꧈';
         } else { // 'biasa'
