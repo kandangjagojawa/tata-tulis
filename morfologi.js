@@ -2,7 +2,7 @@
  * MORFOLOGI.JS
  * Engine Analisis Morfologi & Normalisasi Vokal E (Taling é/è Client-Side).
  * Fitur: Pemotong Ater-ater, Panambang, Restorasi Peluluhan Anuswara,
- *        Generator Tembung Dwipurwa & Imbuhan Paugeran Sriwedari.
+ *        Generator Tembung Dwipurwa, Imbuhan Paugeran Sriwedari, & Generator Singkatan.
  */
 
 let KAMUS_VOKAL = {};
@@ -395,9 +395,58 @@ function prosesImbuhanSriwedari(ater, dasarRaw, panam) {
     }
 }
 
+/* =========================================================================
+ * FUNGSI TAMBAHAN: PEMBENTUKAN SINGKATAN
+ * ========================================================================= */
+
+const MAP_SINGKATAN_BIASA = {
+    'A':'ꦄ', 'B':'ꦧ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ', 'G':'ꦒ', 'H':'ꦲ',
+    'I':'ꦆ', 'J':'ꦗ', 'K':'ꦏ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦤ', 'O':'ꦎ', 'P':'ꦥ',
+    'Q':'ꦏ', 'R':'ꦫ', 'S':'ꦱ', 'T':'ꦠ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦏ',
+    'Y':'ꦪ', 'Z':'ꦗ'
+};
+
+const MAP_SINGKATAN_MURDA = {
+    'A':'ꦄ', 'B':'ꦨ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦦ', 'G':'ꦓ', 'H':'ꦲ',
+    'I':'ꦆ', 'J':'ꦗ', 'K':'ꦑ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦟ', 'O':'ꦎ', 'P':'ꦦ',
+    'Q':'ꦑ', 'R':'ꦫ', 'S':'ꦯ', 'T':'ꦡ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦑ',
+    'Y':'ꦪ', 'Z':'ꦗ'
+};
+
+const MAP_SINGKATAN_BUNYI = {
+    'A':'ꦄ', 'B':'ꦧꦺ', 'C':'ꦕꦺ', 'D':'ꦢꦺ', 'E':'ꦌ', 'F':'ꦌꦥ꦳꧀', 'G':'ꦒꦺ', 'H':'ꦲꦃ',
+    'I':'ꦆ', 'J':'ꦗꦺ', 'K':'ꦏꦺ', 'L':'ꦌꦭ꧀', 'M':'ꦌꦩ꧀', 'N':'ꦌꦤ꧀', 'O':'ꦎ', 'P':'ꦥꦺ',
+    'Q':'ꦏꦶꦈ', 'R':'ꦌꦂ', 'S':'ꦌꦱ꧀', 'T':'ꦠꦺ', 'U':'ꦈ', 'V':'ꦮ꦳ꦺ', 'W':'ꦮꦺ', 'X':'ꦌꦏ꧀ꦱ꧀',
+    'Y':'ꦪꦺ', 'Z':'ꦗ꦳ꦺ'
+};
+
+function prosesSingkatan(rawInput, opsi) {
+    if (!rawInput) return "";
+    let clean = rawInput.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!clean) return "";
+
+    if (opsi === 'latin') {
+        return clean;
+    }
+
+    let result = "";
+    for (let i = 0; i < clean.length; i++) {
+        let char = clean[i];
+        if (opsi === 'murda') {
+            result += (MAP_SINGKATAN_MURDA[char] || char) + '꧈';
+        } else if (opsi === 'bunyi') {
+            result += (MAP_SINGKATAN_BUNYI[char] || char) + '꧈';
+        } else { // 'biasa'
+            result += (MAP_SINGKATAN_BIASA[char] || char) + '꧈';
+        }
+    }
+    return result;
+}
+
 if (typeof window !== 'undefined') {
     window.muatKamusVokal = muatKamusVokal;
     window.normalisasiVokalTeks = normalisasiVokalTeks;
     window.prosesDwipurwaSriwedari = prosesDwipurwaSriwedari;
     window.prosesImbuhanSriwedari = prosesImbuhanSriwedari;
+    window.prosesSingkatan = prosesSingkatan;
 }
