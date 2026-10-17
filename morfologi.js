@@ -420,12 +420,21 @@ const MAP_SINGKATAN_MURDA_REKAN = {
     'Y':'ꦪ', 'Z':'ꦗ꦳'
 };
 
-const MAP_SINGKATAN_KAWI = {
+const MAP_SINGKATAN_KAWI_BIASA = {
+    'A':'ꦄ', 'B':'ꦧ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ', 'G':'ꦒ', 'H':'ꦲ',
+    'I':'ꦆ', 'J':'ꦗ', 'K':'ꦏ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦤ', 'O':'ꦎ', 'P':'ꦥ',
+    'Q':'ꦏ', 'R':'ꦫ', 'S':'ꦱ', 'T':'ꦠ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦏ',
+    'Y':'ꦪ', 'Z':'ꦗ'
+};
+
+const MAP_SINGKATAN_KAWI_MAHAPRANA = {
     'A':'ꦄ', 'B':'ꦨ', 'C':'ꦕ', 'D':'ꦢ', 'E':'ꦌ', 'F':'ꦥ', 'G':'ꦓ', 'H':'ꦲ',
     'I':'ꦆ', 'J':'ꦗ', 'K':'ꦑ', 'L':'ꦭ', 'M':'ꦩ', 'N':'ꦟ', 'O':'ꦎ', 'P':'ꦦ',
     'Q':'ꦏ', 'R':'ꦫ', 'S':'ꦱ', 'T':'ꦡ', 'U':'ꦈ', 'V':'ꦮ', 'W':'ꦮ', 'X':'ꦏ',
     'Y':'ꦪ', 'Z':'ꦗ'
 };
+
+const MAP_SINGKATAN_KAWI = MAP_SINGKATAN_KAWI_MAHAPRANA;
 
 const MAP_SINGKATAN_BUNYI = {
     'A':'ꦄ', 'B':'ꦧꦺ', 'C':'ꦕꦺ', 'D':'ꦢꦺ', 'E':'ꦌ', 'F':'ꦌꦥ꦳꧀', 'G':'ꦒꦺ', 'H':'ꦲ',
@@ -434,7 +443,7 @@ const MAP_SINGKATAN_BUNYI = {
     'Y':'ꦪꦺ', 'Z':'ꦗ꦳ꦺ'
 };
 
-function prosesSingkatan(rawInput, opsi) {
+function prosesSingkatan(rawInput, opsi, varianD) {
     if (!rawInput) return "";
     let clean = rawInput.toUpperCase().replace(/[^A-Z]/g, '');
     if (!clean) return "";
@@ -443,15 +452,27 @@ function prosesSingkatan(rawInput, opsi) {
         return '«' + clean + '»';
     }
 
+    let charD = varianD || 'ꦢ';
+
     let result = "";
     for (let i = 0; i < clean.length; i++) {
         let char = clean[i];
-        if (opsi === 'murda_rekan' || opsi === 'murda') {
+        if (char === 'D') {
+            if (opsi === 'bunyi') {
+                if (charD === 'ꦝ') result += 'ꦝꦺ꧈';
+                else if (charD === 'ꦣ') result += 'ꦣꦺ꧈';
+                else result += 'ꦢꦺ꧈';
+            } else {
+                result += charD + '꧈';
+            }
+        } else if (opsi === 'murda_rekan' || opsi === 'murda') {
             result += (MAP_SINGKATAN_MURDA_REKAN[char] || char) + '꧈';
         } else if (opsi === 'biasa_rekan') {
             result += (MAP_SINGKATAN_BIASA_REKAN[char] || char) + '꧈';
-        } else if (opsi === 'kawi_biasa' || opsi === 'kawi') {
-            result += (MAP_SINGKATAN_KAWI[char] || char) + '꧈';
+        } else if (opsi === 'kawi_biasa') {
+            result += (MAP_SINGKATAN_KAWI_BIASA[char] || char) + '꧈';
+        } else if (opsi === 'kawi_mahaprana' || opsi === 'kawi_murda' || opsi === 'kawi') {
+            result += (MAP_SINGKATAN_KAWI_MAHAPRANA[char] || char) + '꧈';
         } else if (opsi === 'bunyi') {
             result += (MAP_SINGKATAN_BUNYI[char] || char) + '꧈';
         } else { // 'biasa'
