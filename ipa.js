@@ -1,14 +1,14 @@
 /**
  * ipa.js
  * Modul Konversi Transliterasi JGST ke IPA (International Phonetic Alphabet)
- * Pembaruan Fonem Vokal & Pengecualian Kata Khusus:
- * - ora  -> ora
- * - boya -> boya
- * - amba -> ɔmbɔ (ambɔ)
- * - Kata 2 Suku Kata Terbuka berakhiran 'a' (termasuk -ana): [ɔ] (mana -> [mɔnɔ], kana -> [kɔnɔ]).
- * - Kata 2 Suku Kata S1 Tertutup Nasal: Terasimilasi ke [ɔ] (kanca -> [kɔɲtʃɔ]).
- * - Kata 3+ Suku Kata dengan Sufiks -ana: Batasi perubahan [ɔ] hanya pada sufiks (panganana -> [paŋanɔnɔ]).
- * - Kata 3 Suku Kata S1 Tertutup Nasal: S1 miring [a], S2 & S3 jejeg [ɔ] (kandhana -> [kanɖʱɔnɔ], pancaka -> [paɲtʃɔkɔ]).
+ * Pembaruan Fonem Konsonan & Penanganan Dualitas Tata Tulis (Modern vs Lama):
+ * - Tha (ꦛ / th / ṭ) -> Retrofleks [ʈ]
+ * - Dha (ꦝ / dh / ḍ) -> Retrofleks [ɖ]
+ * - Ta (ꦠ / t)       -> Dental [t̪]
+ * - Da (ꦢ / d)       -> Dental [d̪]
+ * - Da Mahaprana (ꦣ / ḏ):
+ *   * Modern (kbj, sriwedari, simplified, praktis) -> [ɖ]
+ *   * Lama (tradisional, carakawi)                  -> [d̪ʰ]
  */
 
 function extractIPAVowels(ipaStr) {
@@ -22,12 +22,20 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
     let words = jgstStr.split(/(\s+)/);
     let lastMainIPAVowels = null;
 
+    // Deteksi Kategori Tata Tulis (Modern vs Lama) berdasarkan fnKey
+    const normalizedKey = (fnKey || '').toLowerCase();
+    const oldKeys = ['tradisional', 'carakawi'];
+    const isOldOrthography = oldKeys.includes(normalizedKey);
+
     // Kamus Pemetaan Karakter Tunggal JGST ke IPA
     const ipaMap = {
         'ā': 'aː', 'ī': 'iː', 'ū': 'uː',
         'ꜽ': 'aɪ', 'ꜷ': 'aʊ', 'ꜹ': 'aʊ',
         'jñ': 'ɲ', 'ñ': 'ɲ', 'ṅ': 'ŋ', 'ṇ': 'ɳ',
-        'ṭ': 'ʈ', 'ḍ': 'ɖ', 'c': 'tʃ', 'j': 'dʒ',
+        'ṭ': 'ʈ', 'ḍ': 'ɖ', 
+        't': 't̪', 'd': 'd̪', // Penambahan Diakritik Dental
+        'ḏ': isOldOrthography ? 'd̪ʰ' : 'ɖ', // Da Mahaprana (ꦣ) berdasarkan tata tulis
+        'c': 'tʃ', 'j': 'dʒ',
         'y': 'j', 'w': 'w',
         'ś': 'ʃ', 'ṣ': 'ʂ', 'ḥ': 'ħ', 'ṡ': 'θ', 'ẓ': 'ðˤ', '‘': 'ʕ',
         'q': 'q', 'x': 'x', 'f': 'f', 'v': 'v', 'z': 'z',
@@ -86,7 +94,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
         if (cleanRawToken === 'boya' || str === 'boya') return 'boya' + trailingPunct;
         if (cleanRawToken === 'amba' || str === 'amba') return 'ɔmbɔ (ambɔ)' + trailingPunct;
 
-        if (fnKey === 'sriwedari') {
+        if (normalizedKey === 'sriwedari') {
             const consPatternDwipurwa = '(th|dh|ng|ny|ñ|ṅ|ŋ|ṇ|ṭha|ṭh|ṭ|ḍha|ḍh|ḍ|ś|ṣ|ṡ|ḳ|g̣|c̣|j̣|p̣|ḅ|[bcdfghjklmnpqrstvwxyz])';
             const dwipurwaRegex = new RegExp(
                 `^(di|ke|sa|pi|kuma|kapi)?` + 
@@ -302,10 +310,11 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
         str = str.replace(/[éè]/g, 'e'); 
         str = str.replace(/ě/g, 'ə'); 
 
-        str = str.replace(/ḍh/g, 'ɖʱ')
-                 .replace(/ṭh/g, 'ʈʰ')
-                 .replace(/dh/g, 'dʱ')
-                 .replace(/th/g, 'tʰ')
+        // Pemetaan Digraph Pasangan Konsonan Retrofleks & Khusus
+        str = str.replace(/ḍh/g, 'ɖ')
+                 .replace(/ṭh/g, 'ʈ')
+                 .replace(/dh/g, 'ɖ')
+                 .replace(/th/g, 'ʈ')
                  .replace(/jñ/g, 'ɲ')
                  .replace(/g̣/g, 'ɡʱ')
                  .replace(/c̣/g, 'tʃʰ')
