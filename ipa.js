@@ -6,9 +6,12 @@
  * - Dha (ꦝ / dh / ḍ) -> Retrofleks [ɖ]
  * - Ta (ꦠ / t)       -> Dental [t̪]
  * - Da (ꦢ / d)       -> Dental [d̪]
- * - Da Mahaprana (ꦣ / ḏ):
+ * - Da Mahaprana (ꦣ / ḏ / ddh):
  *   * Modern (kbj, sriwedari, simplified, praktis) -> [ɖ]
  *   * Lama (tradisional, carakawi)                  -> [d̪ʰ]
+ * - Dha Murda (ꦞ / ḍh):
+ *   * Modern (kbj, sriwedari, simplified, praktis) -> [ɖ]
+ *   * Lama (tradisional, carakawi)                  -> [ɖʰ]
  */
 
 function extractIPAVowels(ipaStr) {
@@ -95,7 +98,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
         if (cleanRawToken === 'amba' || str === 'amba') return 'ɔmbɔ (ambɔ)' + trailingPunct;
 
         if (normalizedKey === 'sriwedari') {
-            const consPatternDwipurwa = '(th|dh|ng|ny|ñ|ṅ|ŋ|ṇ|ṭha|ṭh|ṭ|ḍha|ḍh|ḍ|ś|ṣ|ṡ|ḳ|g̣|c̣|j̣|p̣|ḅ|[bcdfghjklmnpqrstvwxyz])';
+            const consPatternDwipurwa = '(th|dh|ddh|ḍh|ṭh|ng|ny|ñ|ṅ|ŋ|ṇ|ṭha|ṭh|ṭ|ḍha|ḍh|ḍ|ḏ|ś|ṣ|ṡ|ḳ|g̣|c̣|j̣|p̣|ḅ|[bcdfghjklmnpqrstvwxyz])';
             const dwipurwaRegex = new RegExp(
                 `^(di|ke|sa|pi|kuma|kapi)?` + 
                 `${consPatternDwipurwa}` + 
@@ -137,7 +140,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
 
             if (numVowels > 0) {
                 let isClosed = new Array(numVowels).fill(false);
-                const singleOrOnsetCluster = /^(th|dh|ng|ny|ñ|ṅ|ṇ|ṭ|ḍ|ś|ṣ|ḥ|ch|jh|kh|gh|ph|bh|sy|sh|[bcdfghjklmnpqrstvwxyz])([rylw])?$/i;
+                const singleOrOnsetCluster = /^(th|dh|ddh|ḍh|ṭh|ng|ny|ñ|ṅ|ṇ|ṭ|ḍ|ḏ|ś|ṣ|ḥ|ch|jh|kh|gh|ph|bh|sy|sh|[bcdfghjklmnpqrstvwxyz])([rylw])?$/i;
 
                 for (let k = 0; k < numVowels - 1; k++) {
                     let vCurr = vowelMatches[k];
@@ -151,7 +154,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
 
                 let lastV = vowelMatches[numVowels - 1];
                 let tailBlock = str.substring(lastV.index + lastV.vowel.length);
-                if (tailBlock.length > 0 && /[bcdfghjklmnpqrstvwxyzñṅŋṇṭḍcjywśṣḥqxfvzŕṙṟṃḳg̣c̣p̣ḅj̣ṡẓ]/i.test(tailBlock)) {
+                if (tailBlock.length > 0 && /[bcdfghjklmnpqrstvwxyzñṅŋṇṭḍḏcjywśṣḥqxfvzŕṙṟṃḳg̣c̣p̣ḅj̣ṡẓ]/i.test(tailBlock)) {
                     isClosed[numVowels - 1] = true;
                 }
 
@@ -170,7 +173,7 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
                     let vNext = vowelMatches[1];
                     let cBlock = str.substring(vCurr.index + vCurr.vowel.length, vNext.index);
                     
-                    let codaMatch = cBlock.match(/^(ng|ny|dh|th|[bcdfghjklmnpqrstvwxyzñṅŋṇṭḍśṣḥṙŕṟṃḳg̣c̣p̣ḅj̣ṡẓ])/i);
+                    let codaMatch = cBlock.match(/^(ng|ny|dh|th|ddh|ḍh|ṭh|[bcdfghjklmnpqrstvwxyzñṅŋṇṭḍḏśṣḥṙŕṟṃḳg̣c̣p̣ḅj̣ṡẓ])/i);
                     let coda = codaMatch ? codaMatch[1].toLowerCase() : '';
                     let onsetS2 = cBlock.substring(coda.length);
 
@@ -310,11 +313,12 @@ function convertJGSTtoIPA(jgstStr, rawLatinToken, fnKey) {
         str = str.replace(/[éè]/g, 'e'); 
         str = str.replace(/ě/g, 'ə'); 
 
-        // Pemetaan Digraph Pasangan Konsonan Retrofleks & Khusus
-        str = str.replace(/ḍh/g, 'ɖ')
-                 .replace(/ṭh/g, 'ʈ')
-                 .replace(/dh/g, 'ɖ')
-                 .replace(/th/g, 'ʈ')
+        // Pemetaan Digraph Pasangan Konsonan Retrofleks & Khusus (Modern vs Lama)
+        str = str.replace(/ḍh/g, isOldOrthography ? 'ɖʰ' : 'ɖ')   // ꦞ (Dha Murda): Lama [ɖʰ], Modern [ɖ]
+                 .replace(/ṭh/g, isOldOrthography ? 'ʈʰ' : 'ʈ')   // ꦡ (Ta Murda): Lama [ʈʰ], Modern [ʈ]
+                 .replace(/ddh/g, isOldOrthography ? 'd̪ʰ' : 'ɖ')  // ꦣ (Da Mahaprana via ddh): Lama [d̪ʰ], Modern [ɖ]
+                 .replace(/dh/g, 'ɖ')                            // ꦝ (Dha Nglegena): [ɖ]
+                 .replace(/th/g, 'ʈ')                            // ꦛ (Tha Nglegena): [ʈ]
                  .replace(/jñ/g, 'ɲ')
                  .replace(/g̣/g, 'ɡʱ')
                  .replace(/c̣/g, 'tʃʰ')
