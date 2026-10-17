@@ -32,7 +32,8 @@ const OPSI_ENGINE_MAP = {
         { val: 'murda_rekan', label: 'Pilihan 3' }
     ],
     'carakawi': [
-        { val: 'kawi_biasa', label: 'Pilihan 1' }
+        { val: 'kawi_biasa', label: 'Pilihan 1' },
+        { val: 'kawi_mahaprana', label: 'Pilihan 2' }
     ],
     'praktis': [
         { val: 'bunyi', label: 'Pilihan 1' },
@@ -94,7 +95,10 @@ function renderSingkatanForCard(fnKey, rawSingk, targetEngine, optNumOrVal) {
         return `<span class="font-gentium">${rawSingk}</span>`;
     }
     if (typeof prosesSingkatan === 'function') {
-        return prosesSingkatan(rawSingk, chosenVal);
+        let varianD = '';
+        const singkVarianDEl = document.getElementById('singkVarianD');
+        if (singkVarianDEl) varianD = singkVarianDEl.value;
+        return prosesSingkatan(rawSingk, chosenVal, varianD);
     }
     return rawSingk;
 }
@@ -770,6 +774,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const singkInput = document.getElementById('singkInput');
     const singkEngine = document.getElementById('singkEngine');
     const singkOpsi = document.getElementById('singkOpsi');
+    const singkVarianD = document.getElementById('singkVarianD');
     const singkOutLatin = document.getElementById('singkOutLatin');
     const singkOutAksara = document.getElementById('singkOutAksara');
     const btnCopySingk = document.getElementById('btnCopySingk');
@@ -787,6 +792,15 @@ window.addEventListener('DOMContentLoaded', () => {
             el.textContent = opt.label;
             singkOpsi.appendChild(el);
         });
+
+        if (singkVarianD) {
+            if (engine === 'tradisional' || engine === 'carakawi') {
+                singkVarianD.value = 'ꦝ';
+            } else if (['kbj', 'sriwedari', 'simplified', 'praktis'].includes(engine)) {
+                singkVarianD.value = 'ꦢ';
+            }
+        }
+
         updateSingkatanModal();
     }
 
@@ -805,11 +819,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
         let opsi = singkOpsi.value;
         let engine = singkEngine.value;
+        let varianD = singkVarianD ? singkVarianD.value : 'ꦢ';
 
         singkOutLatin.textContent = valClean;
 
         let hasil = typeof prosesSingkatan === 'function' 
-            ? prosesSingkatan(valClean, opsi) 
+            ? prosesSingkatan(valClean, opsi, varianD) 
             : valClean;
 
         if (opsi === 'latin') {
@@ -836,7 +851,18 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (singkEngine) singkEngine.addEventListener('change', muatOpsiSingkatan);
-    if (singkOpsi) singkOpsi.addEventListener('change', updateSingkatanModal);
+    if (singkOpsi) singkOpsi.addEventListener('change', () => {
+        updateSingkatanModal();
+        if (typeof processTransliteration === 'function') {
+            processTransliteration();
+        }
+    });
+    if (singkVarianD) singkVarianD.addEventListener('change', () => {
+        updateSingkatanModal();
+        if (typeof processTransliteration === 'function') {
+            processTransliteration();
+        }
+    });
     if (singkInput) singkInput.addEventListener('input', updateSingkatanModal);
 
     if (btnCopySingk) {
